@@ -1,0 +1,687 @@
+/**
+ * NGCV — Articles archive.
+ *
+ * Composition: masthead (navy band) → deck (page introduction) → category
+ * navigation → featured story → discovery grid → pagination.
+ * All positioning is logical (inline/block), so RTL mirrors without overrides.
+ */
+
+.ngcv-archive {
+	padding-block: var(--ngcv-space-3) var(--ngcv-space-5);
+}
+
+/* ---------- Masthead ---------- */
+
+.ngcv-masthead {
+	position: relative;
+	background: var(--ngcv-navy);
+	color: var(--ngcv-on-navy);
+	padding: clamp(1.5rem, 1rem + 2.4vw, 3rem);
+	padding-block-end: clamp(1.9rem, 1.4rem + 2.6vw, 3.4rem);
+	margin-block-end: var(--ngcv-space-4);
+}
+
+/* Restrained "precise line" motif: a broken gold rule along the lower edge. */
+.ngcv-motif {
+	display: block;
+	position: absolute;
+	inset-inline: 0;
+	inset-block-end: 0;
+	block-size: 4px;
+	background: repeating-linear-gradient(
+		90deg,
+		var(--ngcv-gold) 0 26px,
+		rgba(255, 255, 255, 0.26) 26px 34px
+	);
+}
+
+.ngcv-masthead-kicker {
+	margin: 0 0 0.85rem;
+	color: var(--ngcv-gold);
+}
+
+.ngcv-masthead-kicker::after {
+	content: "";
+	display: inline-block;
+	inline-size: 0.5rem;
+	block-size: 0.5rem;
+	margin-inline-start: 0.6rem;
+	background: var(--ngcv-gold);
+	transform: rotate(45deg);
+}
+
+.ngcv-archive-title {
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+	color: var(--ngcv-navy);
+	font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem);
+	line-height: 1.12;
+	margin: 0;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+	overflow-wrap: break-word;
+}
+
+html[dir="rtl"] .ngcv-archive-title {
+	letter-spacing: normal;
+	line-height: 1.24;
+}
+
+.ngcv-masthead .ngcv-archive-title {
+	color: var(--ngcv-on-navy);
+}
+
+/* Short gold rule under the archive title (kept off balance intentionally) */
+.ngcv-masthead .ngcv-archive-title::after {
+	content: "";
+	display: block;
+	inline-size: 4.5rem;
+	block-size: var(--ngcv-rule);
+	margin-block-start: var(--ngcv-space-2);
+	background: var(--ngcv-gold);
+}
+
+.ngcv-masthead-count {
+	margin: var(--ngcv-space-2) 0 0;
+	color: var(--ngcv-gold);
+	font-size: 0.95rem;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+/* On-navy variants of shared parts */
+.ngcv-masthead .ngcv-breadcrumbs,
+.ngcv-masthead .ngcv-breadcrumbs a {
+	color: var(--ngcv-on-navy-muted);
+}
+
+.ngcv-masthead .ngcv-breadcrumbs a {
+	border-block-end-color: var(--ngcv-on-navy-line);
+}
+
+.ngcv-masthead .ngcv-lang-nav {
+	margin-block: var(--ngcv-space-3) 0;
+}
+
+.ngcv-masthead .ngcv-lang-link,
+.ngcv-masthead .ngcv-lang-current {
+	background: transparent;
+	border-color: var(--ngcv-on-navy-line);
+}
+
+.ngcv-masthead .ngcv-lang-link {
+	color: var(--ngcv-on-navy);
+}
+
+.ngcv-masthead .ngcv-lang-link:hover {
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-gold);
+}
+
+.ngcv-masthead .ngcv-lang-current {
+	background: var(--ngcv-gold);
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+}
+
+/* ---------- Deck: the page's own existing content as editorial introduction -- */
+
+.ngcv-deck {
+	max-inline-size: var(--ngcv-measure-wide);
+	margin-block: 0 var(--ngcv-space-4);
+	padding-inline-start: var(--ngcv-space-2);
+	border-inline-start: var(--ngcv-rule) solid var(--ngcv-gold);
+	color: var(--ngcv-ink);
+	font-size: 1.0625rem;
+	line-height: 1.75;
+}
+
+.ngcv-deck > :first-child {
+	margin-block-start: 0;
+}
+
+.ngcv-deck > :last-child {
+	margin-block-end: 0;
+}
+
+.ngcv-deck :where(img, video, iframe) {
+	max-inline-size: 100%;
+	block-size: auto;
+}
+
+.ngcv-deck :where(h1, h2, h3, h4, p, li, blockquote, strong, em, span, td, th) {
+	color: inherit;
+}
+
+.ngcv-deck p {
+	margin-block: 0 1em;
+}
+
+.ngcv-deck :where(h2, h3, h4) {
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+	color: var(--ngcv-navy);
+	line-height: 1.3;
+	margin-block: 1.4em 0.5em;
+}
+
+.ngcv-deck :where(ul, ol) {
+	padding-inline-start: 1.3rem;
+	margin-block: 0 1em;
+}
+
+.ngcv-deck :where(blockquote) {
+	margin: 1.4em 0;
+	padding-inline-start: var(--ngcv-space-2);
+	border-inline-start: var(--ngcv-rule) solid var(--ngcv-gold);
+	color: var(--ngcv-navy);
+}
+
+.ngcv-deck :where(figure) {
+	margin: 1.4em 0;
+}
+
+.ngcv-deck :where(figcaption) {
+	color: var(--ngcv-muted);
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+.ngcv-deck a {
+	color: var(--ngcv-nile);
+	text-underline-offset: 3px;
+}
+
+/* ---------- Category navigation (existing taxonomy only) ---------- */
+
+.ngcv-cat-nav {
+	margin-block: 0 var(--ngcv-space-4);
+	padding-block: 0.9rem;
+	border-block: 1px solid var(--ngcv-hairline);
+}
+
+.ngcv-cat-list,
+.ngcv-cats-list,
+.ngcv-tags {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ngcv-cat-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem var(--ngcv-space-3);
+}
+
+.ngcv-cat-link {
+	position: relative;
+	display: inline-block;
+	padding-block: 0.35rem;
+	color: var(--ngcv-ink);
+	font-size: 0.94rem;
+	font-weight: 500;
+	line-height: 1.4;
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.ngcv-cat-link::after {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	inset-block-end: 0;
+	block-size: var(--ngcv-rule);
+	background: transparent;
+	transition: background-color 0.15s ease;
+}
+
+.ngcv-cat-link:hover {
+	color: var(--ngcv-navy);
+}
+
+.ngcv-cat-link:hover::after {
+	background: var(--ngcv-sand);
+}
+
+.ngcv-cat-link.is-current {
+	color: var(--ngcv-navy);
+	font-weight: 700;
+}
+
+.ngcv-cat-link.is-current::after {
+	background: var(--ngcv-gold);
+}
+/* ---------- Featured story ----------
+   Uses the first existing post of the current page of the archive query.
+   Mobile: image above text. ≥900px: media beside text (mirrors in RTL). */
+
+.ngcv-feature {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--ngcv-space-3);
+	background: var(--ngcv-surface-warm);
+	border-block-start: var(--ngcv-rule) solid var(--ngcv-gold);
+	margin-block-end: var(--ngcv-space-5);
+}
+
+.ngcv-feature-media {
+	aspect-ratio: 16 / 9;
+}
+
+.ngcv-feature-media.ngcv-media--empty {
+	position: relative;
+	background: var(--ngcv-navy);
+}
+
+/* Decorative geometric fill when the post has no featured image. */
+.ngcv-feature-media.ngcv-media--empty::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		115deg,
+		rgba(255, 222, 0, 0.28) 0 1px,
+		transparent 1px 18px
+	);
+}
+
+.ngcv-feature-body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--ngcv-space-2);
+	padding: var(--ngcv-space-3);
+	padding-block-end: var(--ngcv-space-4);
+}
+
+.ngcv-feature-kicker {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--ngcv-space-1);
+	margin: 0;
+	color: var(--ngcv-earth-dark);
+}
+
+.ngcv-feature-title {
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+	font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.4rem);
+	line-height: 1.18;
+	letter-spacing: -0.015em;
+	color: var(--ngcv-navy);
+	margin: 0;
+	text-wrap: balance;
+	overflow-wrap: break-word;
+}
+
+html[dir="rtl"] .ngcv-feature-title {
+	letter-spacing: normal;
+	line-height: 1.28;
+}
+
+.ngcv-feature-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.ngcv-feature-title a:hover,
+.ngcv-feature-title a:focus-visible {
+	text-decoration: underline;
+	text-decoration-color: var(--ngcv-gold);
+	text-decoration-thickness: var(--ngcv-rule);
+	text-underline-offset: 5px;
+}
+
+.ngcv-feature-excerpt {
+	color: var(--ngcv-ink);
+	font-size: 1rem;
+	line-height: 1.7;
+	max-inline-size: var(--ngcv-measure);
+}
+
+.ngcv-feature-excerpt p {
+	margin: 0;
+}
+
+.ngcv-feature-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	color: var(--ngcv-muted);
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+.ngcv-feature-action {
+	margin-block-start: 0.25rem;
+}
+
+.ngcv-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.7rem 1.25rem;
+	background: var(--ngcv-navy);
+	color: var(--ngcv-gold);
+	border: 1px solid var(--ngcv-navy);
+	border-radius: var(--ngcv-radius-xs);
+	font-weight: 600;
+	font-size: 0.9rem;
+	line-height: 1.4;
+	text-decoration: none;
+	transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.ngcv-btn:hover,
+.ngcv-btn:focus-visible {
+	background: var(--ngcv-gold);
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+}
+/* ---------- Discovery grid ---------- */
+
+.ngcv-grid-title {
+	margin-block-end: var(--ngcv-space-3);
+}
+
+.ngcv-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--ngcv-space-4) var(--ngcv-space-3);
+}
+
+.ngcv-article-card {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+	block-size: 100%;
+	background: var(--ngcv-white);
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-s);
+	overflow: hidden;
+	transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ngcv-article-card:hover,
+.ngcv-article-card:focus-within {
+	border-color: var(--ngcv-hairline-strong);
+	box-shadow: var(--ngcv-shadow-1);
+}
+
+.ngcv-card-media {
+	aspect-ratio: 8 / 5;
+}
+
+.ngcv-card-media img {
+	transition: transform 0.4s ease;
+}
+
+.ngcv-article-card:hover .ngcv-card-media img {
+	transform: scale(1.02);
+}
+
+.ngcv-card-body {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	gap: var(--ngcv-space-2);
+	padding: var(--ngcv-space-3) var(--ngcv-space-3) var(--ngcv-space-2);
+}
+
+.ngcv-card-cat {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.ngcv-card-title {
+	font-family: var(--ngcv-font-card-title);
+	font-weight: var(--ngcv-weight-heading);
+	font-size: clamp(1.1rem, 1rem + 0.5vw, 1.3rem);
+	line-height: 1.32;
+	letter-spacing: -0.01em;
+	margin: 0;
+	color: var(--ngcv-navy);
+	overflow-wrap: break-word;
+}
+
+html[dir="rtl"] .ngcv-card-title {
+	letter-spacing: normal;
+	line-height: 1.42;
+}
+
+.ngcv-card-title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.ngcv-card-title a:hover,
+.ngcv-card-title a:focus-visible {
+	text-decoration: underline;
+	text-decoration-color: var(--ngcv-gold);
+	text-decoration-thickness: var(--ngcv-rule);
+	text-underline-offset: 4px;
+}
+
+.ngcv-card-excerpt {
+	color: var(--ngcv-ink);
+	font-size: 0.95rem;
+	line-height: 1.65;
+	margin: 0;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+@supports not (-webkit-line-clamp: 3) {
+	.ngcv-card-excerpt {
+		max-block-size: 5.4em;
+	}
+}
+
+.ngcv-card-excerpt p {
+	margin: 0;
+}
+
+.ngcv-card-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-block-start: auto;
+	padding-block-start: var(--ngcv-space-2);
+	border-block-start: 1px solid var(--ngcv-hairline);
+	color: var(--ngcv-muted);
+	font-size: 0.82rem;
+	line-height: 1.5;
+}
+
+/* Keep dates and read-times on one line (avoids "7 min / read" breaks) */
+.ngcv-card-meta time,
+.ngcv-card-meta .ngcv-readtime,
+.ngcv-feature-meta time,
+.ngcv-feature-meta .ngcv-readtime {
+	white-space: nowrap;
+}
+
+/* Card without a featured image: a gold rule stands in for the picture, and a
+   wide "lead" card falls back to the normal stacked composition. */
+.ngcv-card--no-media {
+	border-block-start: var(--ngcv-rule) solid var(--ngcv-gold);
+}
+
+.ngcv-card--no-media .ngcv-card-body {
+	padding-block-start: var(--ngcv-space-4);
+}
+
+.ngcv-card--lead.ngcv-card--no-media {
+	display: flex;
+}
+
+/* ---------- Empty state ---------- */
+
+.ngcv-empty {
+	padding: var(--ngcv-space-5) var(--ngcv-space-3);
+	border: 1px dashed var(--ngcv-hairline-strong);
+	border-radius: var(--ngcv-radius-m);
+	text-align: center;
+	color: var(--ngcv-muted);
+}
+
+.ngcv-empty-title {
+	margin: 0;
+	font-size: 1.05rem;
+	color: var(--ngcv-ink);
+}
+
+/* ---------- Pagination (native, crawlable markup) ---------- */
+
+.ngcv-pagination {
+	margin-block-start: var(--ngcv-space-5);
+}
+
+.ngcv-pagination ul {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin: 0;
+	padding: 0;
+	justify-content: center;
+}
+
+.ngcv-pagination .page-numbers {
+	display: inline-block;
+	min-inline-size: 2.4rem;
+	padding: 0.45rem 0.7rem;
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-xs);
+	color: var(--ngcv-navy);
+	font-size: 0.95rem;
+	line-height: 1.4;
+	text-align: center;
+	text-decoration: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ngcv-pagination a.page-numbers:hover {
+	background: var(--ngcv-surface-warm);
+	border-color: var(--ngcv-navy);
+}
+
+.ngcv-pagination .page-numbers.current {
+	background: var(--ngcv-navy);
+	border-color: var(--ngcv-navy);
+	color: var(--ngcv-gold);
+}
+
+.ngcv-pagination .page-numbers.dots {
+	border-color: transparent;
+	color: var(--ngcv-muted);
+}
+
+/* =====================================================================
+   Dark mode — archive only (body class comes from the Digital Newspaper
+   theme toggle). The masthead keeps its navy identity, softened to the
+   navy-soft derivative; the gold motif, gold accents and on-navy text
+   remain unchanged for WCAG contrast. Language switcher + breadcrumbs
+   keep their on-navy variants (they sit inside the masthead).
+   ===================================================================== */
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-masthead {
+	background: var(--ngcv-navy-soft); /* #0A1F44 — softer than #020C30 */
+}
+
+/* Empty state: dark surface + visible dashed hairline */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-empty {
+	border-color: var(--ngcv-hairline-strong);
+}
+
+/* Card hover glow on the theme's dark page background */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-article-card:hover,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-article-card:focus-within {
+	border-color: var(--ngcv-hairline-strong);
+}
+
+/* Category link hover underline: gold instead of the light-surface sand */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-cat-link:hover::after {
+	background: var(--ngcv-gold);
+}
+
+/* The masthead's on-navy language switcher keeps its light treatment, but the
+   current-language pill now reads navy-on-gold against the softened navy. */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-masthead .ngcv-lang-current {
+	background: var(--ngcv-gold);
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+}
+
+/* Media placeholder when a post has no featured image: navy-soft instead of
+   the full navy, so it blends with the dark page. */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-feature-media.ngcv-media--empty {
+	background: var(--ngcv-navy-soft);
+}
+
+/* Pagination hover: dark hover surface instead of the warm light one */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-pagination a.page-numbers:hover {
+	background: var(--ngcv-surface-warm);
+	border-color: var(--ngcv-hairline-strong);
+	color: var(--ngcv-gold);
+}
+
+/* ---------------------------------------------------------------------
+   Text colours: elements that hard-code the navy as TEXT on light surfaces
+   must flip to the dark-mode ink (the navy token itself is untouched).
+   --------------------------------------------------------------------- */
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-deck :where(h2, h3, h4),
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-deck :where(blockquote) {
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-section-title,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-card-title,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-feature-title {
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-cat-link:hover,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-cat-link.is-current {
+	color: var(--ngcv-gold);
+}
+
+/* Primary button: keep gold-on-navy identity, on the softened navy */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-btn {
+	background: var(--ngcv-navy-soft);
+	border-color: var(--ngcv-navy-soft);
+}
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-btn:hover,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-btn:focus-visible {
+	background: var(--ngcv-gold);
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+}
+
+/* Pagination numbers + current page */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-pagination .page-numbers {
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-pagination .page-numbers.current {
+	background: var(--ngcv-navy-soft);
+	border-color: var(--ngcv-navy-soft);
+	color: var(--ngcv-gold);
+}
+
+/* Category chips (gold background): keep navy text for AA on gold */
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-chip {
+	color: var(--ngcv-navy);
+}
+
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-chip:hover,
+body.digital_newspaper_dark_mode .ngcv-context-archive .ngcv-chip:focus-visible {
+	color: var(--ngcv-gold);
+}

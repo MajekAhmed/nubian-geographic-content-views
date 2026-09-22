@@ -1,0 +1,307 @@
+/**
+ * NGCV design tokens — "Future Heritage / التراث في المستقبل".
+ *
+ * Brand palette, typography (Inter for English, Cairo for Arabic), geometry and
+ * spacing for the articles archive and the single-article view.
+ *
+ * Every rule is scoped to the plugin's own .ngcv-* classes (never to theme or
+ * site-wide selectors) and uses CSS logical properties, so ONE component set
+ * serves LTR (English) and RTL (Arabic) with no second layout.
+ */
+
+:root {
+	/* ---------- Brand: core (fixed identity) ---------- */
+	--ngcv-navy: #020C30;   /* Deep Nile Navy */
+	--ngcv-gold: #FFDE00;   /* Nubian Gold */
+	--ngcv-blue: #4172CE;   /* Interactive Blue */
+
+	/* ---------- Brand: supporting (derived; used sparingly) ---------- */
+	--ngcv-navy-soft: #0A1F44;
+	--ngcv-nile: #1E3A8A;
+	--ngcv-sand: #E8D8A8;
+	--ngcv-earth: #8B6F47;
+	--ngcv-earth-dark: #6B5433; /* AA-safe earth tone for small text on light surfaces */
+
+	/* ---------- Surfaces ---------- */
+	--ngcv-white: #FFFFFF;
+	--ngcv-surface-warm: #FAF7F0;
+	--ngcv-surface-sand: #F4EEE1;
+	--ngcv-gray: #F3F4F6;
+
+	/* ---------- On-navy (masthead) ---------- */
+	--ngcv-on-navy: #FFFFFF;
+	--ngcv-on-navy-muted: #C9D2E8;
+	--ngcv-on-navy-line: rgba(255, 255, 255, 0.32);
+
+	/* ---------- Hairlines ---------- */
+	--ngcv-hairline: #E4E7EC;
+	--ngcv-hairline-strong: #CBD2DC;
+
+	/* ---------- Text ---------- */
+	--ngcv-ink: #111827;
+	--ngcv-muted: #5B6472;
+
+	/* ---------- Geometry: precise and archival (never "soft SaaS") ---------- */
+	--ngcv-radius-xs: 2px;
+	--ngcv-radius-s: 2px;
+	--ngcv-radius-m: 3px;
+	/* Compatibility alias (--ngcv-border) points at the hairline above. Kept
+	   because child themes may have copied it from the 1.0.0 sheet. */
+	--ngcv-border: var(--ngcv-hairline);
+	--ngcv-rule: 3px;
+	--ngcv-shadow-1: 0 1px 2px rgba(2, 12, 48, 0.06), 0 12px 28px rgba(2, 12, 48, 0.07);
+
+	/* ---------- Spacing scale ---------- */
+	--ngcv-space-1: 0.5rem;
+	--ngcv-space-2: 1rem;
+	--ngcv-space-3: 1.5rem;
+	--ngcv-space-4: 2rem;
+	--ngcv-space-5: 3rem;
+	--ngcv-space-6: 4.5rem;
+
+	/* ---------- Typography ---------- */
+	--ngcv-font-latin: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--ngcv-font-arabic: "Cairo", "Noto Sans Arabic", "Segoe UI", Tahoma, "Traditional Arabic", sans-serif;
+
+	/* One switch flips the whole plugin surface to the Arabic family (below). */
+	--ngcv-font-base: var(--ngcv-font-latin);
+	--ngcv-font-heading: var(--ngcv-font-base);
+	--ngcv-font-card-title: var(--ngcv-font-base);
+	--ngcv-font-content: var(--ngcv-font-base);
+	--ngcv-font-meta: var(--ngcv-font-base);
+
+	--ngcv-weight-heading: 700;
+	--ngcv-weight-strong: 600;
+
+	/* ---------- Reading measure (comfortable long-form line length) ---------- */
+	--ngcv-measure: 42rem;
+	--ngcv-measure-wide: 52rem;
+
+	/* ---------- Focus ---------- */
+	--ngcv-focus-width: 2px;
+	--ngcv-focus-color: var(--ngcv-blue);
+}
+
+/* Arabic pages use Cairo for the whole plugin surface. The document language
+   and direction stay owned by WordPress + Polylang — never hard-coded here. */
+html[lang^="ar"] .ngcv-context,
+html[dir="rtl"] .ngcv-context {
+	--ngcv-font-base: var(--ngcv-font-arabic);
+}
+
+.ngcv-context {
+	font-family: var(--ngcv-font-base);
+}
+
+/* Optional theme-typography inheritance is injected by NGCV_Assets only when
+   the `ngcv_inherit_theme_typography` filter returns true (off by default). */
+/* =====================================================================
+   Shared primitives (used by both the archive and the single article)
+   ===================================================================== */
+
+/* Visible focus for every interactive element inside the plugin views. */
+.ngcv-context a:focus-visible,
+.ngcv-context button:focus-visible,
+.ngcv-context [tabindex]:focus-visible {
+	outline: var(--ngcv-focus-width) solid var(--ngcv-focus-color);
+	outline-offset: 2px;
+}
+
+/* Screen-reader text. The core pattern is applied to the plugin's own markup
+   only (scoped to .ngcv-context), so a theme that lacks its own helper cannot
+   leak visually-hidden labels — without touching anything outside the plugin. */
+.ngcv-context .screen-reader-text {
+	position: absolute !important;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+/* Small uppercase label. Tracking + uppercase are Latin conventions and are
+   therefore switched off for Arabic (letter-spacing breaks Arabic joining). */
+.ngcv-label {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 700;
+	font-size: 0.75rem;
+	line-height: 1.4;
+}
+
+html[dir="rtl"] .ngcv-label,
+html[lang^="ar"] .ngcv-label {
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* Category chip — gold is a deliberate accent, never a background wash. */
+.ngcv-chip {
+	display: inline-block;
+	padding: 0.22rem 0.6rem;
+	background: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+	border-radius: var(--ngcv-radius-xs);
+	text-decoration: none;
+	transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ngcv-chip:hover,
+.ngcv-chip:focus-visible {
+	background: var(--ngcv-white);
+	box-shadow: inset 0 0 0 1px var(--ngcv-hairline-strong);
+}
+
+/* Direction-neutral arrow glyph (flipped for RTL in responsive.css). */
+.ngcv-arrow {
+	display: inline-block;
+}
+
+/* Section heading shared by archive + related sections. */
+.ngcv-section-title {
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+	color: var(--ngcv-navy);
+	font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	margin-block: 0 var(--ngcv-space-3);
+	padding-block-end: 0.6rem;
+	border-block-end: var(--ngcv-rule) solid var(--ngcv-gold);
+	display: inline-block;
+}
+
+html[dir="rtl"] .ngcv-section-title {
+	letter-spacing: normal;
+}
+
+/* Meta separator */
+.ngcv-dot {
+	color: var(--ngcv-muted);
+	padding-inline: 0.4em;
+}
+
+/* ---------- Media primitive (stable aspect boxes: no layout shift) ---------- */
+
+.ngcv-media {
+	display: block;
+	overflow: hidden;
+	background: var(--ngcv-navy-soft);
+}
+
+.ngcv-media img {
+	display: block;
+	inline-size: 100%;
+	block-size: 100%;
+	object-fit: cover;
+}
+
+/* ---------- Breadcrumbs (fallback part; the theme renders the real trail) ---- */
+
+.ngcv-breadcrumbs {
+	font-size: 0.85rem;
+	color: var(--ngcv-muted);
+	margin-block-end: var(--ngcv-space-3);
+	overflow-wrap: break-word;
+}
+
+.ngcv-breadcrumbs a {
+	color: var(--ngcv-navy);
+	text-decoration: none;
+	border-block-end: 1px solid var(--ngcv-sand);
+}
+
+.ngcv-breadcrumbs a:hover,
+.ngcv-breadcrumbs a:focus-visible {
+	border-block-end-color: var(--ngcv-gold);
+}
+
+/* ---------- Language switcher + language counterpart ---------- */
+
+.ngcv-lang-nav,
+.ngcv-counterpart {
+	margin-block: var(--ngcv-space-3) 0;
+}
+
+.ngcv-lang-list,
+.ngcv-counterpart-list {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--ngcv-space-1);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ngcv-lang-link,
+.ngcv-lang-current,
+.ngcv-counterpart-link {
+	display: inline-block;
+	padding: 0.32rem 0.85rem;
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-xs);
+	font-size: 0.85rem;
+	line-height: 1.4;
+	text-decoration: none;
+	background: var(--ngcv-white);
+}
+
+.ngcv-lang-link,
+.ngcv-counterpart-link {
+	color: var(--ngcv-navy);
+}
+
+.ngcv-lang-link:hover,
+.ngcv-counterpart-link:hover {
+	border-color: var(--ngcv-blue);
+	color: var(--ngcv-nile);
+}
+
+.ngcv-lang-current {
+	background: var(--ngcv-navy);
+	border-color: var(--ngcv-navy);
+	color: var(--ngcv-white);
+}
+
+/* Counterpart link carries a small direction-neutral marker */
+.ngcv-counterpart-link .ngcv-arrow {
+	margin-inline-start: 0.35rem;
+	color: var(--ngcv-earth);
+}
+
+/* =====================================================================
+   Dark mode (theme "Digital Newspaper" toggle: body.digital_newspaper_dark_mode)
+   Archive context ONLY — the single-article view keeps its light reading
+   surface untouched. Surfaces are tuned to sit on the theme's dark page
+   background (#27272b / --inner-container-bk #202024) with a subtle navy
+   cast. The three brand tokens (--ngcv-navy, --ngcv-gold, --ngcv-blue)
+   are NOT redefined here.
+   ===================================================================== */
+
+body.digital_newspaper_dark_mode .ngcv-context-archive {
+	/* Surfaces (cards, feature panel, chips hover) */
+	--ngcv-white: #242429;
+	--ngcv-surface-warm: #1E1E24;
+	--ngcv-surface-sand: #16161B;
+	--ngcv-gray: #1A1A1F;
+
+	/* Hairlines */
+	--ngcv-hairline: #3A3A44;
+	--ngcv-hairline-strong: #4B4B57;
+
+	/* Text */
+	--ngcv-ink: #F2F3F7;
+	--ngcv-muted: #B9C0CE;
+
+	/* Derived accents re-tuned for AA on dark surfaces */
+	--ngcv-nile: #9BB8F5;       /* links inside the deck */
+	--ngcv-earth-dark: #DCC28C; /* feature kicker */
+
+	/* Shadow: deepen so elevation still reads on the dark page */
+	--ngcv-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.45);
+}

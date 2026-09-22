@@ -1,0 +1,209 @@
+/**
+ * NGCV — Responsive behaviour.
+ *
+ * Breakpoints (project spec):
+ *   < 768px        mobile — one intentional column
+ *   768–1023px     tablet / landscape — two columns
+ *   1024–1439px    desktop — three columns
+ *   >= 1440px      wide desktop — same grid, larger scale
+ *
+ * Also holds the RTL refinements (the layout itself is logical-property based
+ * and mirrors automatically) and the reduced-motion guarantees.
+ */
+
+/* ---------- Safety: never overflow the content column ---------- */
+
+.ngcv-context {
+	overflow-wrap: break-word;
+}
+
+.ngcv-context :where(img, svg, video, iframe, embed, object, table, pre) {
+	max-inline-size: 100%;
+}
+
+.ngcv-article-card,
+.ngcv-feature-body,
+.ngcv-card-body,
+.ngcv-cat-list {
+	min-inline-size: 0;
+}
+
+/* ---------- Tablet: two columns ---------- */
+
+@media (min-width: 768px) {
+	.ngcv-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--ngcv-space-4) var(--ngcv-space-3);
+	}
+
+	.ngcv-related-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	/* Editorial variation 1: the opening card of a grid page becomes a wide,
+	   image-led panel that spans the full row. */
+	.ngcv-card--lead {
+		display: grid;
+		grid-column: 1 / -1;
+		grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+	}
+
+	.ngcv-card--lead .ngcv-card-media {
+		aspect-ratio: auto;
+		block-size: 100%;
+		min-block-size: 16rem;
+	}
+
+	.ngcv-card--lead .ngcv-card-body {
+		justify-content: center;
+		padding: var(--ngcv-space-4);
+	}
+
+	.ngcv-card--lead .ngcv-card-title {
+		font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+	}
+}
+
+/* ---------- Desktop: three columns + side-by-side featured story ---------- */
+
+@media (min-width: 1024px) {
+	.ngcv-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.ngcv-related-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.ngcv-card--lead {
+		grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+	}
+
+	.ngcv-feature {
+		grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+		gap: 0;
+	}
+
+	.ngcv-feature-media {
+		aspect-ratio: auto;
+		block-size: 100%;
+		min-block-size: 20rem;
+	}
+
+	.ngcv-feature-body {
+		padding: var(--ngcv-space-4);
+		padding-inline-start: 0;
+	}
+
+	.ngcv-prose {
+		max-inline-size: var(--ngcv-measure);
+	}
+}
+
+/* ---------- Mobile: intentional, readable single column ---------- */
+
+@media (max-width: 767px) {
+	.ngcv-archive-title {
+		font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.1rem);
+	}
+
+	.ngcv-article-title {
+		font-size: clamp(1.65rem, 1.2rem + 2vw, 2.15rem);
+	}
+
+	.ngcv-prose {
+		font-size: 1.03rem;
+		line-height: 1.85;
+	}
+
+	.ngcv-card-body {
+		padding: var(--ngcv-space-2) var(--ngcv-space-2) var(--ngcv-space-1);
+	}
+
+	.ngcv-feature-body {
+		padding: var(--ngcv-space-2);
+		padding-block-end: var(--ngcv-space-3);
+	}
+
+	.ngcv-toc {
+		padding: var(--ngcv-space-2);
+	}
+
+	.ngcv-related {
+		margin-block: var(--ngcv-space-4) 0;
+	}
+
+	.ngcv-deck {
+		padding-inline-start: var(--ngcv-space-2);
+		font-size: 1rem;
+		line-height: 1.7;
+	}
+
+	.ngcv-details-label {
+		min-inline-size: 100%;
+	}
+}
+
+/* ---------- Wide desktop: larger rhythm, not a new layout ---------- */
+
+@media (min-width: 1440px) {
+	.ngcv-grid,
+	.ngcv-related-grid {
+		gap: var(--ngcv-space-5) var(--ngcv-space-4);
+	}
+
+	.ngcv-archive,
+	.ngcv-article {
+		padding-block: var(--ngcv-space-4) var(--ngcv-space-6);
+	}
+
+	.ngcv-card-title {
+		font-size: 1.32rem;
+	}
+
+	.ngcv-deck,
+	.ngcv-article-lede {
+		font-size: 1.15rem;
+	}
+}
+
+/* ---------- RTL refinements ----------
+   The layout mirrors automatically (logical properties). Only glyphs and
+   floats with physical meaning need explicit handling. */
+
+[dir="rtl"] .ngcv-arrow {
+	transform: scaleX(-1);
+}
+
+[dir="rtl"] .ngcv-prose .alignleft {
+	float: right;
+	margin-inline: 1.2em 0;
+}
+
+[dir="rtl"] .ngcv-prose .alignright {
+	float: left;
+	margin-inline: 0 1.2em;
+}
+
+[dir="rtl"] .ngcv-prose pre,
+[dir="rtl"] .ngcv-prose code {
+	text-align: start;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+	.ngcv-context,
+	.ngcv-context *,
+	.ngcv-context *::before,
+	.ngcv-context *::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	.ngcv-article-card:hover .ngcv-card-media img {
+		transform: none !important;
+	}
+}

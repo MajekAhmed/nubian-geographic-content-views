@@ -1,0 +1,12 @@
+_audit/
+dist/
+log/
+.clinerules/
+.agents/
+.cline/
+skills-lock.json
+node_modules/
+wp-content.zip
+*.log
+.DS_Store
+Thumbs.db
