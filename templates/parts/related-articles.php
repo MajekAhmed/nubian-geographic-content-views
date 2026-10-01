@@ -17,7 +17,9 @@ if ( ! $ngcv_related ) {
 }
 ?>
 <section class="ngcv-related" aria-labelledby="ngcv-related-title">
-	<h2 id="ngcv-related-title" class="ngcv-section-title"><?php esc_html_e( 'Related Articles', 'nubian-geographic-content-views' ); ?></h2>
+	<div class="ngcv-divider">
+		<h2 id="ngcv-related-title" class="ngcv-divider-title"><?php esc_html_e( 'Related Articles', 'nubian-geographic-content-views' ); ?></h2>
+	</div>
 	<div class="ngcv-related-grid">
 		<?php while ( $ngcv_related->have_posts() ) : ?>
 			<?php $ngcv_related->the_post(); ?>

@@ -39,6 +39,7 @@ final class NGCV_Plugin {
 		add_action( 'init', array( __CLASS__, 'load_textdomain' ) );
 		add_filter( 'body_class', array( __CLASS__, 'body_classes' ), 10, 1 );
 
+		NGCV_Settings::init();
 		NGCV_Template_Router::init();
 		NGCV_Assets::init();
 	}

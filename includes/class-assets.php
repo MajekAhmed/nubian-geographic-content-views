@@ -59,20 +59,28 @@ final class NGCV_Assets {
 	 * Sizes attribute for a given view context, so browsers download an
 	 * appropriately sized candidate instead of the largest one.
 	 *
+	 * These follow the 1.2.1 container, which is CAPPED: on a 1920px screen the
+	 * content column stops at 1280px while the viewport keeps growing, so a
+	 * `33vw` card would make the browser fetch a candidate roughly 1.5× larger
+	 * than it actually renders. Every value below is therefore expressed
+	 * against the viewport but stops growing past the container's cap.
+	 *
 	 * @param string $context 'card', 'tall' or 'lead'.
 	 * @return string
 	 */
 	public static function image_sizes_attr( $context = 'card' ) {
 		switch ( $context ) {
 			case 'lead':
-				return '(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 66vw';
+				return '(max-width: 767px) calc(100vw - 2.3rem), (max-width: 1023px) calc(100vw - 2.3rem), 660px';
 			case 'tall':
-				return '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw';
+				return '(max-width: 767px) calc(100vw - 2.3rem), (max-width: 1023px) 50vw, 420px';
 			case 'hero':
-				return '(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 66vw';
+				// Full container width: the archive masthead plate and the
+				// single-article plate both span .ngcv-container.
+				return '(max-width: 767px) calc(100vw - 2.3rem), (max-width: 1439px) calc(100vw - 7rem), 1280px';
 			case 'card':
 			default:
-				return '(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw';
+				return '(max-width: 767px) calc(100vw - 2.3rem), (max-width: 1023px) 50vw, 420px';
 		}
 	}
 
@@ -225,6 +233,11 @@ final class NGCV_Assets {
 	/**
 	 * Enqueue context-scoped assets.
 	 *
+	 * The components are enqueued in BOTH contexts on purpose: the single
+	 * article's related-articles grid renders the same card markup as the
+	 * archive's discovery grid, and duplicating those rules per context is how
+	 * the two drifted apart in the first place.
+	 *
 	 * @return void
 	 */
 	public static function enqueue() {
@@ -242,11 +255,32 @@ final class NGCV_Assets {
 			self::version( 'assets/css/tokens.css' )
 		);
 
+		wp_enqueue_style(
+			'ngcv-layout',
+			$css_url . 'components/layout.css',
+			array( 'ngcv-tokens' ),
+			self::version( 'assets/css/components/layout.css' )
+		);
+
+		wp_enqueue_style(
+			'ngcv-card',
+			$css_url . 'components/card.css',
+			array( 'ngcv-layout' ),
+			self::version( 'assets/css/components/card.css' )
+		);
+
+		wp_enqueue_style(
+			'ngcv-actions',
+			$css_url . 'components/actions.css',
+			array( 'ngcv-card' ),
+			self::version( 'assets/css/components/actions.css' )
+		);
+
 		if ( NGCV_Plugin::CONTEXT_ARCHIVE === $context ) {
 			wp_enqueue_style(
 				'ngcv-archive',
 				$css_url . 'archive.css',
-				array( 'ngcv-tokens' ),
+				array( 'ngcv-actions' ),
 				self::version( 'assets/css/archive.css' )
 			);
 		}
@@ -255,7 +289,7 @@ final class NGCV_Assets {
 			wp_enqueue_style(
 				'ngcv-single',
 				$css_url . 'single.css',
-				array( 'ngcv-tokens' ),
+				array( 'ngcv-actions' ),
 				self::version( 'assets/css/single.css' )
 			);
 		}
@@ -268,8 +302,12 @@ final class NGCV_Assets {
 		);
 
 		if ( NGCV_Plugin::CONTEXT_SINGLE === $context ) {
-			// Vanilla JS enhancement only (TOC toggle + scroll-spy). The
-			// article body and TOC are fully server-rendered without it.
+			// The archive deliberately ships no JavaScript (kept since 1.1.0):
+			// its entrance motion is a pure CSS keyframe. The single article
+			// needs JS only for the table-of-contents toggle and scroll-spy —
+			// both are progressive enhancements over fully server-rendered
+			// markup, and the copy-link / Web Share controls behave the same
+			// without it.
 			wp_enqueue_script(
 				'ngcv-content-views',
 				NGCV_PLUGIN_URL . 'assets/js/content-views.js',

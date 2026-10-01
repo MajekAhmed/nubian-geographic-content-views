@@ -368,6 +368,122 @@ Key behaviors implemented as audited:
   versioning; `prefers-reduced-motion`, `:focus-visible`, logical CSS
   properties throughout (single system for RTL/LTR).
 
+## 19. Audit pass of the 1.2 working tree — verified findings
+
+Scope of this pass: Polylang integration, template routing, archive header
+resolution, article sharing and the i18n artefacts, reviewed in source and
+exercised by the offline harness. Two defects were found and fixed; both fixes
+are inside `includes/class-archive.php`, plus assertions in
+`_audit/tests/scenarios.php` (a git-ignored dev harness) that pin them.
+
+### 19.1 Defects found and fixed
+
+1. **Archive header could be taken from the other language.** In home mode a
+   configured archive page won when it reached the Posts page *through its
+   Polylang translation*, so `header()` and `header_page_id()` returned the page
+   belonging to the other language — `<h1>`, introduction, hero fallback image
+   and the category-nav “All” link (`get_permalink()`) then came from the wrong
+   language. Reproduced in the harness before the fix: on the Arabic archive the
+   introduction rendered the English page text, and the reverse on the English
+   archive (5 failing assertions per Polylang run). `header_page_id()` now
+   resolves to the current-language Posts page (translation followed read-only,
+   never created) and `header()` calls it instead of duplicating the loop.
+2. **`mode()` ignored `is_home()`.** It was `is_home_fallback() ? 'home' :
+   'page'`, and `is_home_fallback()` compares page IDs only. A static page
+   carrying the NGCV page template was therefore driven in home mode whenever a
+   Posts page existed at all — grid fed by the main (single-page) query and the
+   header read from the Posts page instead of the queried page. `mode()` is now
+   `is_home() && is_home_fallback()`.
+
+Routing, queries, hooks, escaping, template markup, CSS, JS, options and URLs
+are unchanged; no new public API or filter was introduced.
+
+### 19.2 Automated evidence (offline, WordPress stubs)
+
+- `powershell -NoProfile -ExecutionPolicy Bypass -File _audit/tests/run-tests.ps1`
+  → PHP lint clean, 15/15 scenario runs, **695 assertions passed, 0 failed,
+  0 broken** (`unit`, `archive`, `hero`, `single`, `safety` × pl-en, pl-ar, nopl-en).
+- 15 new `unit` assertions: header source per language (G), translated static
+  archive page staying in page mode (H), `ngcv_enable_posts_page_archive`
+  opt-out including theme-template pass-through and explicit-configuration
+  survival (I). 10 new `single` assertions: the share block’s label/heading
+  level, count of controls, encoded article URL, `target="_blank"
+  rel="noopener"`, accessible names, `role="status" aria-live="polite"` copy
+  status, `hidden` native control, and the absence of share SDKs / `utm_`
+  parameters.
+- Negative control: reverting fix 1 alone turns those 5 unit assertions red in
+  each Polylang run; the file was then restored from a byte-identical backup
+  (SHA-256 `F0395FE2…50777E42A`).
+- `_audit/tools/check-api.php` → “All static checks passed” (exit 0), all 36
+  gettext strings present in the POT. `check-classes.php` → exit 0.
+  `check-css.php` → exit 0; the share rules use logical properties
+  (`margin-block-start`, `inline-size`, `block-size`), so one stylesheet serves
+  both LTR and RTL, with theme dark-mode overrides present.
+- i18n artefacts: the Arabic catalogue contains all 12 share strings with
+  translations; the shipped `…-ar.mo` is byte-identical to a fresh compile of
+  `…-ar.po` (57 entries, 0 empty translations, 0 entries with invalid UTF-8);
+  `…-views.pot` was regenerated so its `#:` references match the edited source —
+  the string set did not change (the only earlier difference was 12 shifted
+  reference lines).
+
+### 19.3 Corrections and notes for readers of earlier sections
+
+- §18’s “Optional `is_home()` fallback strictly gated by verified IDs via
+  `ngcv_articles_page_ids`” describes the pre-1.2 behaviour. Verified current
+  behaviour: the official Posts page is archived by default, the setting and the
+  legacy `ngcv_articles_page_ids` filter still target pages explicitly, and
+  `ngcv_enable_posts_page_archive` (default `true`) restores strict matching.
+  §19 supersedes that sentence; §18 is kept as history.
+- `NGCV_Settings::articles_page_id()` validates once per request (`static
+  $validated`), so a scenario cannot change the setting halfway through; the new
+  assertions set it before the first read and use the uncached legacy filter for
+  the same-language case. Not a defect — recorded because it shaped the tests.
+- `_audit/tools/verify-mo.php` prints `valid utf-8: NO` for *any* MO file: it
+  checks the whole file, whose binary header is not UTF-8. Per-entry validation
+  of the shipped MO is clean. Tool artefact, not a defect.
+- `_audit/tests/out-*.txt` are stale checked-in-era leftovers from an older
+  suite (they report 38–61 assertions where the suite now reports 46–71 per
+  run). `_audit/` is git-ignored, so they are local noise; treat the live run
+  above as authoritative.
+
+### 19.4 Build artefact produced by this pass
+
+- New dev tool `_audit/tools/build-zip.php` (git-ignored, like the rest of
+  `_audit/`): reads the version from the plugin header, packages the bootstrap +
+  `uninstall.php` + `readme.txt` + `includes/`, `languages/`, `assets/`,
+  `templates/` under a single root folder, keeps `_audit/`, `UI/`, docs and VCS
+  folders out, refuses to replace an existing artefact without `--force`, and
+  re-opens the finished ZIP to require every packaged file byte-identical to the
+  working tree. It reported `VERIFY : ok`.
+- Produced `dist/nubian-geographic-content-views-1.2.0-build2.zip` — 32 files +
+  8 directories, 69,659 bytes, SHA-256
+  `8c5ffca059b657940aa37abcf9a0caa6d58cb9a6fc121c5879ce0bf13c88eb9c`. Its
+  manifest equals the shipped `…-1.2.0.zip` manifest plus
+  `templates/parts/share.php`; inside it `class-archive.php` carries both §19.1
+  fixes and `single-article.php` includes the share part.
+- Why a second file: the tree still declares `1.2.0` (header, `NGCV_VERSION`,
+  `Stable tag`), so the canonical name `…-1.2.0.zip` was already taken. Both
+  existing artefacts were left byte-unchanged (1.2.0 SHA-256 stayed
+  `7A9DC86A…BFB4F928A`). The shipped `…-1.2.0.zip` predates article sharing
+  entirely — its packaged `class-archive.php` still has the pre-fix `mode()` —
+  so it should not be offered as the current build. Releasing properly means
+  bumping to `1.2.1` (then `php _audit/tools/build-zip.php` emits
+  `…-1.2.1.zip` with no name clash) or deliberately replacing `…-1.2.0.zip` with
+  `--force`.
+
+### 19.5 Not verified here / still open
+
+
+- No live WordPress or browser testing was possible in this environment: theme
+  dark mode, Polylang language switching, Rank Math output and the Web Share /
+  clipboard controls still need the §14 checklist on the real site.
+- Phase 2–5 work and this pass are **uncommitted** (`main` at `0833a6c`).
+  Version header, `readme.txt` changelog and `dist/*.zip` were deliberately not
+  touched — release decisions belong to the maintainer.
+- Untracked, unrelated to this pass and left untouched: `UI/`,
+  `.git-backup-pre-clean/`.
+
+
 
 
 

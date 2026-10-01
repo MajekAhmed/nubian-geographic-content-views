@@ -14,11 +14,15 @@ defined( 'ABSPATH' ) || exit;
 $ngcv_post_id = isset( $post_id ) ? absint( $post_id ) : 0;
 $ngcv_langs   = NGCV_Polylang::language_switcher( $ngcv_post_id );
 
+/* Optional context modifier on the <nav>, so the same part can be framed as
+   the end-of-article footer switcher without duplicating the markup. */
+$ngcv_modifier = isset( $modifier ) ? sanitize_html_class( (string) $modifier ) : '';
+
 if ( empty( $ngcv_langs ) ) {
 	return;
 }
 ?>
-<nav class="ngcv-lang-nav" aria-label="<?php esc_attr_e( 'Available languages', 'nubian-geographic-content-views' ); ?>">
+<nav class="ngcv-lang-nav<?php echo $ngcv_modifier ? ' ' . esc_attr( $ngcv_modifier ) : ''; ?>" aria-label="<?php esc_attr_e( 'Available languages', 'nubian-geographic-content-views' ); ?>">
 	<ul class="ngcv-lang-list">
 		<?php foreach ( $ngcv_langs as $ngcv_lang ) : ?>
 			<?php

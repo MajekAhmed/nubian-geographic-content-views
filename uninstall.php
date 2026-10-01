@@ -2,9 +2,10 @@
 /**
  * Uninstall routine for Nubian Geographic – Content Views.
  *
- * SAFETY: The plugin persists no options, transients, post meta, post content,
- * taxonomy terms, translations, SEO metadata, or user data. It therefore has
- * nothing to remove from the database. Content (posts, pages, categories, tags,
+ * SAFETY: The plugin persists two presentation-only options
+ * (`ngcv_articles_page_id`, `ngcv_archive_hero_image_id`) and nothing else:
+ * no transients, post meta, post content, taxonomy terms, translations, SEO
+ * metadata, or user data. Content (posts, pages, categories, tags,
  * media, Polylang relationships, Rank Math metadata) is intentionally NOT
  * touched on uninstall.
  *

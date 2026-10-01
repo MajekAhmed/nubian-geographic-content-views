@@ -1,0 +1,195 @@
+/**
+ * NGCV — Layout primitives.
+ *
+ * The container that gives the plugin its own geometry, plus the section
+ * rhythm and the editorial divider shared by the archive and the single
+ * article.
+ *
+ * Why this file exists: the active theme sets
+ * `.digital-newspaper-container` to a ladder of max-widths (540 → 620 → 720 →
+ * 820 → 960 → 1060 → 1140px) and, when sidebars are on, caps
+ * `.primary-content` at 70%. Those are the theme's decisions for theme
+ * pages. NGCV establishes its own measure inside `.ngcv-context` without
+ * touching a single theme file — because a presentation layer that does not
+ * control its own width cannot be centred.
+ *
+ * Geometry (verified at 1440 / 1600 / 1920 with the tokens in tokens.css):
+ *
+ *   viewport   container   side margin each side
+ *   1280px     1152px      64px
+ *   1440px     1216px      112px
+ *   1600px     1280px      160px
+ *   1920px     1280px      320px
+ *   2560px     1280px      640px
+ *
+ * At 1920px the 320px margins read as a deliberate editorial margin rather
+ * than waste — that is what the cap is for. Beyond ~1400px of content the
+ * three-column grid loses its density, so the cap stays and the page breathes.
+ * Going the other way — letting the container fill 1920px — would produce the
+ * full-width text wall this system exists to prevent.
+ */
+
+.ngcv-context {
+	overflow-wrap: break-word;
+}
+
+/* The container: fluid, gutter-bounded, centred, capped. */
+.ngcv-container {
+	inline-size: min(100% - (2 * var(--ngcv-gutter)), var(--ngcv-container-max));
+	margin-inline: auto;
+}
+
+/* A full-bleed band is the one place allowed to exceed the container: the
+   band itself spans the content column, while its inner content still
+   resolves against .ngcv-container. */
+.ngcv-bleed {
+	inline-size: 100%;
+}
+
+/* ---------- Section rhythm ----------
+   Bands separate on --ngcv-section-gap, never on ad-hoc margins. */
+
+.ngcv-band {
+	margin-block-start: var(--ngcv-section-gap);
+}
+
+.ngcv-band:first-child {
+	margin-block-start: 0;
+}
+
+/* ---------- Editorial divider ----------
+   The replacement for the old repeated gold underline under every section
+   heading. Composition: a full-width hairline, a small gold diamond breaking
+   it at centre, and the heading. The diamond is a 45°-rotated square — an
+   abstract geometric marker consistent with the existing .ngcv-masthead-kicker
+   marker. No hieroglyph, no archaeological mark, no invented symbol. */
+
+.ngcv-divider {
+	position: relative;
+	margin-block: var(--ngcv-section-gap) var(--ngcv-space-3);
+	padding-block-start: var(--ngcv-space-3);
+	border-block-start: 1px solid var(--ngcv-hairline);
+}
+
+.ngcv-divider::before {
+	content: "";
+	position: absolute;
+	inset-block-start: -3px;
+	inset-inline-start: 50%;
+	inline-size: 6px;
+	block-size: 6px;
+	background: var(--ngcv-gold);
+	transform: translateX(-50%) rotate(45deg);
+}
+
+/* The heading that follows the divider carries no rule of its own — the
+   divider IS the rule. */
+.ngcv-divider-title {
+	margin: 0;
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+	color: var(--ngcv-navy);
+	font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem);
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+}
+
+html[dir="rtl"] .ngcv-divider-title,
+html[lang^="ar"] .ngcv-divider-title {
+	letter-spacing: normal;
+	line-height: 1.4;
+}
+
+/* In dark mode a navy heading is invisible: flip to ink (the single pattern
+   the whole dark-mode layer follows). */
+body.digital_newspaper_dark_mode .ngcv-divider-title {
+	color: var(--ngcv-ink);
+}
+
+/* ---------- Entrance ----------
+   ONE mechanism for both contexts: a pure CSS one-time keyframe. There is no
+   scroll listener, no class toggle, and no observer involved, so the entrance
+   is identical whether JavaScript is enabled, disabled, or slow — and the
+   archive keeps shipping zero JavaScript.
+
+   The whole block sits inside a `no-preference` guard: under
+   prefers-reduced-motion: reduce the rule simply does not exist, the element
+   renders in its final state, and nothing was ever hidden in the first place,
+   so there is no flash of unstyled content.
+
+   Duration is the project ceiling (0.4s, --ngcv-motion-slow). Distance 14px,
+   opacity only, one animation with no stagger: a cascade on a grid would make
+   the reader wait for the page to finish performing. Off-screen cards finish
+   their animation before they scroll into view, which is why interaction —
+   not entrance — carries the card's personality. */
+
+@media (prefers-reduced-motion: no-preference) {
+	.ngcv-enter {
+		animation: ngcv-enter var(--ngcv-motion-slow) both;
+	}
+
+	@keyframes ngcv-enter {
+		from {
+			opacity: 0;
+			transform: translateY(14px);
+		}
+		to {
+			opacity: 1;
+			transform: none;
+		}
+	}
+}
+
+/* Print: the article is the deliverable, the interface is not. */
+@media print {
+	.ngcv-toc,
+	.ngcv-share,
+	.ngcv-related,
+	.ngcv-pagination,
+	.ngcv-cat-nav,
+	.ngcv-lang-nav,
+	.ngcv-counterpart,
+	.ngcv-page-links,
+	.ngcv-article .nav-links,
+	.ngcv-breadcrumbs,
+	.ngcv-enter {
+		display: none !important;
+	}
+
+	.ngcv-context {
+		background: #FFFFFF !important;
+		color: #111827 !important;
+	}
+
+	/* One column, full measure: the TOC rail and its empty track would
+	   otherwise print as a large blank margin. */
+	.ngcv-article-layout,
+	.ngcv-article-layout--with-aside {
+		display: block !important;
+	}
+
+	.ngcv-article-inner,
+	.ngcv-article-header > .ngcv-container {
+		max-inline-size: none !important;
+	}
+
+	.ngcv-prose {
+		font-size: 11pt;
+		line-height: 1.55;
+	}
+
+	.ngcv-article-title {
+		font-size: 20pt;
+	}
+
+	.ngcv-media img {
+		max-block-size: 90mm;
+		object-fit: contain;
+	}
+
+	.ngcv-details,
+	.ngcv-tags {
+		border-color: #CCCCCC !important;
+		background: none !important;
+	}
+}

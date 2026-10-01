@@ -29,7 +29,10 @@ $ngcv_primary    = ! empty( $ngcv_categories ) ? $ngcv_categories[0] : null;
 $ngcv_reading    = NGCV_Single::reading_time( get_the_ID() );
 $ngcv_has_media  = has_post_thumbnail();
 
-$ngcv_classes = array( 'ngcv-article-card', 'ngcv-card--' . $ngcv_variant );
+// The entrance class is part of the SAME array: post_class() takes classes as
+// an array, and concatenating would produce a string the function cannot
+// expand into the class attribute.
+$ngcv_classes = array( 'ngcv-article-card', 'ngcv-card--' . $ngcv_variant, 'ngcv-enter' );
 if ( ! $ngcv_has_media ) {
 	$ngcv_classes[] = 'ngcv-card--no-media';
 }

@@ -26,7 +26,7 @@ if ( empty( $ngcv_toc_items ) ) {
 			<span class="ngcv-toc-toggle-icon" aria-hidden="true">&#9662;</span>
 		</button>
 	</div>
-	<ol id="ngcv-toc-list" class="ngcv-toc-list" data-ngcv-toc>
+	<ol id="ngcv-toc-list" class="ngcv-toc-list" data-ngcv-toc role="list">
 		<?php foreach ( $ngcv_toc_items as $ngcv_item ) : ?>
 			<li class="ngcv-toc-item ngcv-toc-h<?php echo esc_attr( (int) $ngcv_item['level'] ); ?>">
 				<a href="#<?php echo esc_attr( $ngcv_item['id'] ); ?>"><?php echo esc_html( $ngcv_item['text'] ); ?></a>

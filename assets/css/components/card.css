@@ -1,0 +1,208 @@
+/**
+ * NGCV — Article card.
+ *
+ * ONE authoritative implementation, used by the archive discovery grid, the
+ * archive's lead variant, and the single article's related-articles grid.
+ *
+ * Before 1.2.1 these rules existed twice — in archive.css and again in
+ * single.css (because single.css is only enqueued in the single context and
+ * could not see them). Two copies of the same card is one too many: they drift,
+ * and the related-articles grid in the single view could silently diverge from
+ * the archive grid.
+ *
+ * Editorial posture: FLAT AT REST. A hairline border and the page surface
+ * define the card; elevation appears only on interaction. A permanently raised
+ * card grid reads as a generic SaaS template, a flat grid that lifts on hover
+ * reads as print. Shadows at rest are therefore deliberately absent.
+ */
+
+/* ---------- Card ---------- */
+
+.ngcv-article-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+	background: var(--ngcv-surface-raised);
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-s);
+	overflow: hidden;
+	transition:
+		transform var(--ngcv-motion-med),
+		box-shadow var(--ngcv-motion-med),
+		border-color var(--ngcv-motion-fast);
+}
+
+.ngcv-article-card:hover,
+.ngcv-article-card:focus-within {
+	transform: translateY(-3px);
+	box-shadow: var(--ngcv-elev-2);
+	border-color: var(--ngcv-hairline-strong);
+}
+
+/* ---------- Media ---------- */
+
+.ngcv-card-media {
+	display: block;
+	aspect-ratio: 8 / 5;
+	background: var(--ngcv-surface-sand);
+	overflow: hidden;
+}
+
+.ngcv-card-media img {
+	transition: transform var(--ngcv-motion-med);
+}
+
+.ngcv-article-card:hover .ngcv-card-media img,
+.ngcv-article-card:focus-within .ngcv-card-media img {
+	transform: scale(1.045);
+}
+
+/* A post with no featured image still occupies the same box, so the grid never
+   reflows — the card simply starts with its text. */
+.ngcv-card--no-media .ngcv-card-media {
+	display: none;
+}
+
+/* ---------- Body ---------- */
+
+.ngcv-card-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+	padding: var(--ngcv-space-3);
+	min-inline-size: 0;
+}
+
+.ngcv-card-cat {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--ngcv-space-1);
+}
+
+/* ---------- Title ---------- */
+
+.ngcv-card-title {
+	margin: 0;
+	font-family: var(--ngcv-font-card-title);
+	font-weight: var(--ngcv-weight-heading);
+	font-size: 1.18rem;
+	line-height: 1.32;
+	letter-spacing: -0.012em;
+	color: var(--ngcv-navy);
+	text-wrap: balance;
+	overflow-wrap: break-word;
+}
+
+html[dir="rtl"] .ngcv-card-title,
+html[lang^="ar"] .ngcv-card-title {
+	letter-spacing: normal;
+	line-height: 1.45;
+}
+
+body.digital_newspaper_dark_mode .ngcv-card-title {
+	color: var(--ngcv-ink);
+}
+
+/* The title is the card's primary link target. A gold underline sweeps in on
+   hover via background-size — no reflow, no layout shift. */
+.ngcv-card-title a {
+	color: inherit;
+	text-decoration: none;
+	background-image: linear-gradient(var(--ngcv-gold), var(--ngcv-gold));
+	background-repeat: no-repeat;
+	background-position: 0 100%;
+	background-size: 0% 2px;
+	transition:
+		background-size var(--ngcv-motion-med),
+		color var(--ngcv-motion-fast);
+}
+
+.ngcv-article-card:hover .ngcv-card-title a,
+.ngcv-article-card:focus-within .ngcv-card-title a,
+.ngcv-card-title a:focus-visible {
+	background-size: 100% 2px;
+	color: var(--ngcv-nile);
+}
+
+/* ---------- Excerpt ---------- */
+
+.ngcv-card-excerpt {
+	margin: 0;
+	font-size: 0.94rem;
+	line-height: 1.62;
+	color: var(--ngcv-muted);
+	overflow-wrap: break-word;
+}
+
+.ngcv-card-excerpt p {
+	margin: 0;
+}
+
+.ngcv-card-excerpt p + p {
+	margin-block-start: 0.7em;
+}
+
+/* ---------- Meta ---------- */
+
+.ngcv-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.15rem 0.35rem;
+	margin-block-start: auto;
+	padding-block-start: 0.35rem;
+	font-size: 0.82rem;
+	line-height: 1.5;
+	color: var(--ngcv-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.ngcv-card-meta time,
+.ngcv-card-meta .ngcv-readtime {
+	white-space: nowrap;
+}
+
+/* ---------- Category chip ----------
+   A gold accent, never a wash. On hover it drops to the quiet surface and
+   takes a hairline, which reads as "lifted off the card". */
+
+.ngcv-chip {
+	display: inline-block;
+	padding: 0.22rem 0.6rem;
+	background: var(--ngcv-gold);
+	color: var(--ngcv-navy);
+	border-radius: var(--ngcv-radius-xs);
+	font-size: 0.72rem;
+	line-height: 1.5;
+	text-decoration: none;
+	white-space: nowrap;
+	transition:
+		background-color var(--ngcv-motion-fast),
+		box-shadow var(--ngcv-motion-fast);
+}
+
+.ngcv-chip:hover,
+.ngcv-chip:focus-visible {
+	background: var(--ngcv-surface-sand);
+	box-shadow: inset 0 0 0 1px var(--ngcv-hairline-strong);
+}
+
+/* ---------- Small label ---------- */
+
+.ngcv-label {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 700;
+	font-size: 0.75rem;
+	line-height: 1.4;
+}
+
+/* Arabic has no case, and tracking breaks Arabic joining. */
+html[dir="rtl"] .ngcv-label,
+html[lang^="ar"] .ngcv-label {
+	text-transform: none;
+	letter-spacing: normal;
+	font-size: 0.8rem;
+	line-height: 1.6;
+}

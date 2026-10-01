@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Nubian Geographic – Content Views
  * Description:       Presentation layer for the Nubian Geographic articles archive and single articles. Presentation only — it does not create, modify, or migrate any content, URLs, taxonomies, translations, or SEO metadata.
- * Version:           1.1.1
+ * Version:           1.2.1
  * Requires at least: 5.9
  * Requires PHP:      7.2
  * Author:            Nubian Geographic
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NGCV_VERSION', '1.1.1' );
+define( 'NGCV_VERSION', '1.2.1' );
 define( 'NGCV_PLUGIN_FILE', __FILE__ );
 define( 'NGCV_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NGCV_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -26,6 +26,7 @@ require_once NGCV_PLUGIN_DIR . 'includes/class-polylang.php';
 require_once NGCV_PLUGIN_DIR . 'includes/class-archive.php';
 require_once NGCV_PLUGIN_DIR . 'includes/class-single.php';
 require_once NGCV_PLUGIN_DIR . 'includes/class-assets.php';
+require_once NGCV_PLUGIN_DIR . 'includes/class-settings.php';
 require_once NGCV_PLUGIN_DIR . 'includes/class-template-router.php';
 require_once NGCV_PLUGIN_DIR . 'includes/class-plugin.php';
 

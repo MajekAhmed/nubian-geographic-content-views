@@ -1,12 +1,20 @@
 /**
  * NGCV content views — progressive enhancement.
  *
- * Vanilla JS, no dependencies, namespace: NGCV. The article body and the
- * table of contents are fully server-rendered and functional without this
- * script. Enhancements only:
- *   1. TOC collapse toggle (aria-expanded; list is open by default).
- *   2. TOC scroll-spy via IntersectionObserver (highlights current heading).
+ * Vanilla JS, no dependencies, namespace: NGCV. Everything it touches is
+ * already server-rendered and fully functional without this script; each part
+ * returns immediately when its markup is absent, so the same file serves both
+ * contexts without loading dead code paths.
+ *
+ * Enhancements only:
+ *   1. TOC collapse toggle (aria-expanded; the list is open by default).
+ *   2. TOC scroll-spy (highlights the current heading) via ONE
+ *      IntersectionObserver.
  *   3. Smooth in-page scrolling for TOC links (skipped under reduced motion).
+ *   4. Article sharing: copy-link + native Web Share.
+ *
+ * Entrance motion is NOT here: it is a pure CSS keyframe in
+ * components/layout.css, so it behaves identically with or without this file.
  */
 (function () {
 	'use strict';
@@ -21,6 +29,71 @@
 		 */
 		init: function () {
 			this.toc();
+			this.share();
+		},
+
+		/**
+		 * Article sharing: copy-link + native Web Share (progressive).
+		 */
+		share: function () {
+			var block = document.querySelector('[data-ngcv-share]');
+			if (!block) {
+				return;
+			}
+
+			var url = block.getAttribute('data-ngcv-share-url') || window.location.href;
+			var title = block.getAttribute('data-ngcv-share-title') || document.title;
+
+			var nativeItem = block.querySelector('[data-ngcv-native]');
+			var nativeButton = block.querySelector('[data-ngcv-native-button]');
+			if (nativeItem && nativeButton && typeof navigator.share === 'function') {
+				nativeItem.removeAttribute('hidden');
+				nativeButton.addEventListener('click', function () {
+					navigator.share({ title: title, url: url }).catch(function () {});
+				});
+			}
+
+			var copyButton = block.querySelector('[data-ngcv-copy]');
+			var status = block.querySelector('[data-ngcv-copy-status]');
+			if (!copyButton) {
+				return;
+			}
+
+			var done = function (message) {
+				if (status) {
+					status.textContent = message;
+				}
+			};
+
+			copyButton.addEventListener('click', function () {
+				var fallback = function () {
+					var input = document.createElement('input');
+					input.value = url;
+					input.setAttribute('readonly', 'readonly');
+					input.style.position = 'absolute';
+					input.style.opacity = '0';
+					document.body.appendChild(input);
+					input.select();
+					try {
+						document.execCommand('copy');
+						done(copyButton.getAttribute('data-ngcv-copied') || 'Copied');
+					} catch (error) {
+						done(copyButton.getAttribute('data-ngcv-failed') || 'Copy failed');
+					}
+					document.body.removeChild(input);
+				};
+
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(url).then(
+						function () {
+							done(copyButton.getAttribute('data-ngcv-copied') || 'Copied');
+						},
+						fallback
+					);
+				} else {
+					fallback();
+				}
+			});
 		},
 
 		/**

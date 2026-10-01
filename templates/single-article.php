@@ -25,7 +25,7 @@ if ( have_posts() ) :
 		$ngcv_has_toc = NGCV_Single::should_render_toc();
 		?>
 		<article id="post-<?php the_ID(); ?>" <?php post_class( 'ngcv-article' ); ?>>
-			<div class="ngcv-article-inner">
+			<div class="ngcv-article-inner ngcv-container">
 				<header class="ngcv-article-header">
 					<?php ngcv_get_template( 'parts/breadcrumbs.php' ); ?>
 
@@ -87,6 +87,11 @@ if ( have_posts() ) :
 						</div>
 
 						<footer class="ngcv-article-footer">
+							<?php
+							// Share block: canonical URL + title of the current article only.
+							ngcv_get_template( 'parts/share.php', array( 'post_id' => get_the_ID() ) );
+							?>
+
 							<?php ngcv_get_template( 'parts/article-details.php' ); ?>
 
 							<?php
@@ -109,7 +114,13 @@ if ( have_posts() ) :
 
 		<?php ngcv_get_template( 'parts/related-articles.php' ); ?>
 
-		<?php ngcv_get_template( 'parts/language-switcher.php', array( 'post_id' => get_the_ID() ) ); ?>
+		<?php ngcv_get_template(
+			'parts/language-switcher.php',
+			array(
+				'post_id'  => get_the_ID(),
+				'modifier' => 'ngcv-lang-nav--footer',
+			)
+		); ?>
 
 		<?php
 	endwhile;

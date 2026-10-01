@@ -93,24 +93,91 @@ final class NGCV_Template_Router {
 	}
 
 	/**
-	 * Optional ID fallback (off by default). Never guess IDs; only IDs passed
-	 * through the `ngcv_articles_page_ids` filter are honored.
+	 * The official WordPress Posts page ID (`page_for_posts` option), or 0.
+	 *
+	 * This is WordPress' own concept — distinct from the NGCV configured
+	 * archive page and from a static page carrying the NGCV page template.
+	 *
+	 * @return int
+	 */
+	public static function posts_page_id() {
+		return absint( get_option( 'page_for_posts' ) );
+	}
+
+	/**
+	 * The NGCV configured archive page IDs: the plugin setting plus its
+	 * Polylang translation for the current language (read-only), plus the
+	 * legacy `ngcv_articles_page_ids` filter values. Never guesses.
+	 *
+	 * @return int[]
+	 */
+	public static function configured_archive_ids() {
+		$ids = array();
+
+		$setting_id = (int) NGCV_Settings::articles_page_id();
+		if ( $setting_id ) {
+			$ids[] = $setting_id;
+			if ( NGCV_Polylang::is_active() ) {
+				$translation = NGCV_Polylang::get_translation( $setting_id );
+				if ( $translation ) {
+					$ids[] = $translation;
+				}
+			}
+		}
+
+		$filtered = apply_filters( 'ngcv_articles_page_ids', array() );
+		if ( ! empty( $filtered ) ) {
+			foreach ( (array) $filtered as $id ) {
+				$ids[] = absint( $id );
+			}
+		}
+
+		$ids = array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+		return $ids;
+	}
+
+	/**
+	 * Whether a page ID is an explicitly configured NGCV archive target
+	 * (setting/translation or legacy filter).
+	 *
+	 * @param int $page_id Page ID.
+	 * @return bool
+	 */
+	public static function is_configured_archive_page( $page_id ) {
+		$page_id = absint( $page_id );
+		if ( ! $page_id ) {
+			return false;
+		}
+		return in_array( $page_id, self::configured_archive_ids(), true );
+	}
+
+	/**
+	 * The official WordPress Posts page (`page_for_posts`) is itself a valid
+	 * NGCV archive target: when WordPress renders it, `is_page()` becomes
+	 * false and `is_home()` becomes true, so the static-page template route
+	 * can never match there. No page template is required to recognise the
+	 * official Posts page.
+	 *
+	 * The explicit NGCV setting and the legacy `ngcv_articles_page_ids`
+	 * filter are preserved (they select the header/header-source and remain
+	 * authoritative for explicit targeting); the `ngcv_enable_posts_page_archive`
+	 * filter (default true) allows opting out back to strict configured-only
+	 * matching. Never guesses IDs.
 	 *
 	 * @return bool
 	 */
 	public static function is_home_fallback() {
-		$ids = apply_filters( 'ngcv_articles_page_ids', array() );
-		if ( empty( $ids ) ) {
-			return false;
-		}
-
-		$posts_page = absint( get_option( 'page_for_posts' ) );
+		$posts_page = self::posts_page_id();
 		if ( ! $posts_page ) {
 			return false;
 		}
 
-		$ids = array_map( 'absint', (array) $ids );
-		return in_array( $posts_page, $ids, true );
+		$enable = apply_filters( 'ngcv_enable_posts_page_archive', true );
+		if ( ! $enable ) {
+			return self::is_configured_archive_page( $posts_page );
+		}
+
+		return true;
 	}
 
 	/**

@@ -17,7 +17,7 @@ $ngcv_primary    = ! empty( $ngcv_categories ) ? $ngcv_categories[0] : null;
 $ngcv_reading    = NGCV_Single::reading_time( get_the_ID() );
 $ngcv_has_media  = has_post_thumbnail();
 ?>
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'ngcv-feature' ); ?> aria-labelledby="ngcv-feature-title">
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'ngcv-feature ngcv-enter' ); ?> aria-labelledby="ngcv-feature-title">
 	<?php if ( $ngcv_has_media ) : ?>
 		<a class="ngcv-feature-media ngcv-media" href="<?php echo esc_url( $ngcv_permalink ); ?>" tabindex="-1" aria-hidden="true">
 			<?php

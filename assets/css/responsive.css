@@ -1,14 +1,17 @@
 /**
  * NGCV — Responsive behaviour.
  *
- * Breakpoints (project spec):
- *   < 768px        mobile — one intentional column
- *   768–1023px     tablet / landscape — two columns
- *   1024–1439px    desktop — three columns
- *   >= 1440px      wide desktop — same grid, larger scale
+ * Mobile-last `min-width` queries, matching this project's existing
+ * convention. The four breakpoints:
  *
- * Also holds the RTL refinements (the layout itself is logical-property based
- * and mirrors automatically) and the reduced-motion guarantees.
+ *   < 768px        mobile  — one intentional column, compact rhythm
+ *   768–1023px     tablet  — two columns
+ *   1024–1439px    desktop — three columns, real TOC rail
+ *   >= 1440px      wide    — larger cap and rhythm, not a new layout
+ *
+ * Everything here uses logical properties, so the mirrored RTL behaviour
+ * comes from the same rules with no second stylesheet. The only RTL block at
+ * the bottom is for glyphs and physically-named WordPress classes.
  */
 
 /* ---------- Safety: never overflow the content column ---------- */
@@ -21,37 +24,53 @@
 	max-inline-size: 100%;
 }
 
+/* minmax(0, …) tracks only shrink below their content, so every grid and
+   flex child that holds user text must be allowed to reach zero. */
 .ngcv-article-card,
 .ngcv-feature-body,
 .ngcv-card-body,
-.ngcv-cat-list {
+.ngcv-cat-list,
+.ngcv-grid,
+.ngcv-related-grid,
+.ngcv-article-main,
+.ngcv-article-aside {
 	min-inline-size: 0;
 }
 
-/* ---------- Tablet: two columns ---------- */
+/* Tables are the one element allowed to scroll inside the prose rather than
+   widening the page. */
+.ngcv-prose table {
+	display: block;
+	overflow-x: auto;
+}
+
+/* ---------- Container ---------- */
+
+.ngcv-container {
+	inline-size: min(100% - (2 * var(--ngcv-gutter)), var(--ngcv-container-max));
+}
+
+/* ---------- Archive grid ---------- */
 
 @media (min-width: 768px) {
-	.ngcv-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--ngcv-space-4) var(--ngcv-space-3);
-	}
-
+	.ngcv-grid,
 	.ngcv-related-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--ngcv-space-4);
 	}
 
-	/* Editorial variation 1: the opening card of a grid page becomes a wide,
-	   image-led panel that spans the full row. */
+	/* Editorial variation: the opening card of a grid page becomes a wide,
+	   image-led panel spanning the full row. */
 	.ngcv-card--lead {
 		display: grid;
 		grid-column: 1 / -1;
-		grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
 	}
 
 	.ngcv-card--lead .ngcv-card-media {
 		aspect-ratio: auto;
 		block-size: 100%;
-		min-block-size: 16rem;
+		min-block-size: 17rem;
 	}
 
 	.ngcv-card--lead .ngcv-card-body {
@@ -60,51 +79,173 @@
 	}
 
 	.ngcv-card--lead .ngcv-card-title {
-		font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+		font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
 	}
 }
 
-/* ---------- Desktop: three columns + side-by-side featured story ---------- */
-
 @media (min-width: 1024px) {
-	.ngcv-grid {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+	.ngcv-context {
+		--ngcv-container-max: 76rem;
 	}
 
+	.ngcv-grid,
 	.ngcv-related-grid {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
 	.ngcv-card--lead {
-		grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
 	}
 
+	/* The featured story becomes a side-by-side composition. One shared
+	   panel with an inner hairline keeps the image and the text reading as a
+	   single editorial unit rather than as two blocks that happen to touch. */
 	.ngcv-feature {
-		grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-		gap: 0;
+		display: grid;
+		grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
 	}
 
 	.ngcv-feature-media {
 		aspect-ratio: auto;
 		block-size: 100%;
-		min-block-size: 20rem;
+		min-block-size: 22rem;
 	}
 
 	.ngcv-feature-body {
-		padding: var(--ngcv-space-4);
-		padding-inline-start: 0;
+		justify-content: center;
+		padding: var(--ngcv-space-5);
 	}
 
-	.ngcv-prose {
-		max-inline-size: var(--ngcv-measure);
+	/* ---------- Single article: the reading grid ----------
+	   Four explicit tracks: [1fr] [rail] [measure] [1fr].
+
+	   The two outer flexible tracks are what remove the defect this redesign
+	   set out to fix. The previous layout put the rail in the container and
+	   then centred the prose inside what was left, which left a visible dead
+	   margin on the far side of every article. Here the reading column is
+	   centred on its own axis and the rail occupies the slack beside it.
+
+	   Explicit column placement is mandatory: auto-placement would drop the
+	   prose into the narrow rail track. */
+
+	.ngcv-article-layout--with-aside {
+		grid-template-columns:
+			minmax(0, 1fr)
+			var(--ngcv-rail)
+			minmax(0, var(--ngcv-measure))
+			minmax(0, 1fr);
+		justify-items: start;
+		column-gap: var(--ngcv-rail-gap);
+	}
+
+	.ngcv-article-layout--with-aside > .ngcv-article-aside {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.ngcv-article-layout--with-aside > .ngcv-article-main {
+		grid-column: 3;
+		grid-row: 1;
+		max-inline-size: none;
+		margin-inline: 0;
+	}
+
+	/* No table of contents: an empty track stands in for the rail, so the
+	   one-column and two-column articles sit on the SAME optical axis. A
+	   plain centred max-width would sit further left, and the eye would read
+	   the difference as a jog when moving between articles. */
+	.ngcv-article-layout:not(.ngcv-article-layout--with-aside) {
+		grid-template-columns:
+			minmax(0, 1fr)
+			var(--ngcv-rail)
+			minmax(0, var(--ngcv-measure))
+			minmax(0, 1fr);
+		justify-items: start;
+		column-gap: var(--ngcv-rail-gap);
+	}
+
+	.ngcv-article-layout:not(.ngcv-article-layout--with-aside) > .ngcv-article-main {
+		grid-column: 3;
+		grid-row: 1;
+		max-inline-size: none;
+		margin-inline: 0;
+	}
+
+	/* Sticky only where the rail is genuinely a rail. In the collapsed layout
+	   the block sits above the prose, and pinning it to the viewport top would
+	   park a short list over the article while the reader scrolls. */
+	.ngcv-article-layout--with-aside .ngcv-article-aside {
+		position: sticky;
+		inset-block-start: var(--ngcv-sticky-top);
+		max-block-size: calc(100vh - var(--ngcv-sticky-top) - var(--ngcv-space-4));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+
+	/* On a wide viewport the toggle is not needed: the list is always open
+	   and the control would only be noise. */
+	.ngcv-toc-toggle {
+		display: none;
+	}
+
+	.ngcv-toc {
+		padding-block: var(--ngcv-space-2);
 	}
 }
 
-/* ---------- Mobile: intentional, readable single column ---------- */
+@media (min-width: 1440px) {
+	.ngcv-context {
+		--ngcv-container-max: 80rem;
+	}
+
+	.ngcv-grid,
+	.ngcv-related-grid {
+		gap: var(--ngcv-space-5) var(--ngcv-space-4);
+	}
+
+	.ngcv-archive,
+	.ngcv-article {
+		padding-block-end: var(--ngcv-space-6);
+	}
+
+	.ngcv-card-title {
+		font-size: 1.24rem;
+	}
+
+	.ngcv-deck,
+	.ngcv-article-lede {
+		font-size: 1.15rem;
+	}
+}
+
+/* ---------- RTL refinements ----------
+   The layout mirrors automatically (logical properties). Only glyphs and
+   floats with physical meaning need explicit handling. */
+
+/* ---------- Mobile ----------
+   Two `max-width` queries remain here, and both are corrective rather than
+   structural: the mobile base is already correct, these only tighten it. The
+   layout itself is mobile-first. */
 
 @media (max-width: 767px) {
-	.ngcv-archive-title {
-		font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.1rem);
+	/* The hero band relaxes to a shorter, narrower rhythm on phones. */
+	.ngcv-masthead {
+		--ngcv-hero-min: 16rem;
+		--ngcv-hero-max: 22rem;
+	}
+
+	.ngcv-masthead-copy {
+		max-inline-size: none;
+	}
+
+	.ngcv-masthead-deck {
+		font-size: 0.92rem;
+	}
+
+	/* The language switcher returns to the flow instead of hugging the far
+	   edge, where it would crowd a narrow screen. */
+	.ngcv-masthead .ngcv-lang-nav {
+		align-self: flex-start;
 	}
 
 	.ngcv-article-title {
@@ -121,58 +262,126 @@
 	}
 
 	.ngcv-feature-body {
-		padding: var(--ngcv-space-2);
-		padding-block-end: var(--ngcv-space-3);
+		padding: var(--ngcv-space-3);
 	}
 
+	/* The TOC drops the rail framing on phones: a flat, collapsible block
+	   above the prose. The semantic <nav><ol> and the toggle button are
+	   unchanged — this is presentation only. */
 	.ngcv-toc {
 		padding: var(--ngcv-space-2);
+		border-inline-start: 0;
+		border: 1px solid var(--ngcv-hairline);
+		border-radius: var(--ngcv-radius-m);
 	}
 
-	.ngcv-related {
-		margin-block: var(--ngcv-space-4) 0;
+	.ngcv-toc-item a {
+		min-block-size: 2.25rem;
+		display: flex;
+		align-items: center;
 	}
 
-	.ngcv-deck {
-		padding-inline-start: var(--ngcv-space-2);
-		font-size: 1rem;
-		line-height: 1.7;
+	.ngcv-details-list {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
 	}
 
-	.ngcv-details-label {
-		min-inline-size: 100%;
+	.ngcv-details-value {
+		margin-block-end: 0.5rem;
+	}
+
+	.ngcv-article .nav-links {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.ngcv-article .nav-next a {
+		align-items: flex-start;
+		text-align: start;
+	}
+
+	/* ---------- Touch targets ----------
+	   44px minimum on small screens. Applied here rather than in the
+	   components so the base rules stay screen-size agnostic. */
+	/* The visible network names collapse to screen-reader text so all seven
+	   controls fit one row on a phone without wrapping or overflowing. Each
+	   control keeps its own aria-label, so the accessible name is unchanged. */
+	.ngcv-share-text {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		margin: -1px;
+		padding: 0;
+		border: 0;
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.ngcv-share-link {
+		min-block-size: 44px;
+		min-inline-size: 44px;
+		justify-content: center;
+	}
+
+	.ngcv-pagination .page-numbers {
+		min-inline-size: 2.75rem;
+		min-block-size: 2.75rem;
+	}
+
+	.ngcv-cat-link {
+		min-block-size: 2.75rem;
+		display: inline-flex;
+		align-items: center;
 	}
 }
 
-/* ---------- Wide desktop: larger rhythm, not a new layout ---------- */
-
-@media (min-width: 1440px) {
-	.ngcv-grid,
-	.ngcv-related-grid {
-		gap: var(--ngcv-space-5) var(--ngcv-space-4);
-	}
-
-	.ngcv-archive,
-	.ngcv-article {
-		padding-block: var(--ngcv-space-4) var(--ngcv-space-6);
-	}
-
-	.ngcv-card-title {
-		font-size: 1.32rem;
-	}
-
-	.ngcv-deck,
-	.ngcv-article-lede {
-		font-size: 1.15rem;
+@media (max-width: 1023px) {
+	/* Between tablet and desktop the TOC rail does not fit beside the
+	   reading measure: 16.5rem + 3rem + 42rem already exceeds the container.
+	   It becomes a collapsible block above the prose instead. */
+	.ngcv-article-layout {
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
-/* ---------- RTL refinements ----------
-   The layout mirrors automatically (logical properties). Only glyphs and
-   floats with physical meaning need explicit handling. */
+/* ---------- Category bar: horizontal scrolling ----------
+   A long taxonomy must never widen the page. The list scrolls on its inline
+   axis with an edge fade on the trailing side, and --ngcv-fade-dir flips for
+   RTL so the fade always sits on the logical end. */
+
+@media (max-width: 1023px) {
+	.ngcv-cat-nav--bar {
+		overflow: hidden;
+	}
+
+	.ngcv-cat-nav--bar .ngcv-cat-list {
+		overflow-x: auto;
+		flex-wrap: nowrap;
+		scroll-snap-type: inline proximity;
+		scrollbar-width: thin;
+		-webkit-overflow-scrolling: touch;
+		padding-inline-end: var(--ngcv-space-3);
+		mask-image: linear-gradient(to var(--ngcv-fade-dir), #000 88%, transparent);
+	}
+
+	.ngcv-cat-nav--bar .ngcv-cat-link {
+		scroll-snap-align: start;
+	}
+}
+
+/* ---------- RTL ----------
+   The layout mirrors automatically (logical properties, and grid line 1 is
+   the inline-start edge in both directions). Only glyphs, gradient direction
+   and physically-named WordPress float classes need explicit handling. */
 
 [dir="rtl"] .ngcv-arrow {
 	transform: scaleX(-1);
+}
+
+/* The edge fade must sit on the trailing (left) side in RTL. */
+[dir="rtl"] .ngcv-context {
+	--ngcv-fade-dir: left;
 }
 
 [dir="rtl"] .ngcv-prose .alignleft {
@@ -185,12 +394,28 @@
 	margin-inline: 0 1.2em;
 }
 
-[dir="rtl"] .ngcv-prose pre,
-[dir="rtl"] .ngcv-prose code {
-	text-align: start;
+/* ---------- Sticky elements and the WordPress admin bar ----------
+   The admin bar is 32px on desktop and 46px below 783px. A sticky rail that
+   hides behind it is worse than no sticky rail. */
+
+body.admin-bar .ngcv-cat-nav--bar {
+	inset-block-start: 46px;
 }
 
-/* ---------- Reduced motion ---------- */
+@media (min-width: 784px) {
+	body.admin-bar .ngcv-cat-nav--bar {
+		inset-block-start: 32px;
+	}
+
+	body.admin-bar .ngcv-context {
+		--ngcv-sticky-top: 7rem;
+	}
+}
+
+/* ---------- Reduced motion ----------
+   Belt and braces on top of the `no-preference` guards already in
+   components/layout.css: this block cancels any remaining transition,
+   including ones added later by a child theme. */
 
 @media (prefers-reduced-motion: reduce) {
 	.ngcv-context,
@@ -203,7 +428,30 @@
 		scroll-behavior: auto !important;
 	}
 
-	.ngcv-article-card:hover .ngcv-card-media img {
+	.ngcv-card-media img,
+	.ngcv-feature-media img {
 		transform: none !important;
+	}
+
+	.ngcv-card-title a,
+	.ngcv-feature-title a,
+	.ngcv-cat-link::after {
+		background-size: 0% 2px !important;
+	}
+
+	.ngcv-cat-link.is-current::after {
+		background-size: 100% 2px !important;
+	}
+
+	.ngcv-article-card:hover,
+	.ngcv-article-card:focus-within {
+		transform: none !important;
+	}
+
+	/* The entrance keyframe is declared inside a `no-preference` guard in
+	   components/layout.css, so under `reduce` it never applies. This is the
+	   belt to that pair of braces. */
+	.ngcv-enter {
+		animation: none !important;
 	}
 }

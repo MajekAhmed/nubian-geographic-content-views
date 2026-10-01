@@ -29,13 +29,16 @@ final class NGCV_Archive {
 	private static $header = null;
 
 	/**
-	 * 'home' when the Articles page is the assigned posts page (main loop
-	 * contains the posts); 'page' for a normal static page (secondary query).
+	 * 'home' when the request is the official Posts page rendered as the NGCV
+	 * archive (main loop contains the posts); 'page' for a static page carrying
+	 * the NGCV page template (secondary query). The `is_home()` test is what
+	 * keeps the two routes apart: a templated static page must never be driven
+	 * by the main query just because a Posts page exists.
 	 *
 	 * @return string
 	 */
 	public static function mode() {
-		return NGCV_Template_Router::is_home_fallback() ? 'home' : 'page';
+		return ( is_home() && NGCV_Template_Router::is_home_fallback() ) ? 'home' : 'page';
 	}
 
 	/**
@@ -208,8 +211,9 @@ final class NGCV_Archive {
 
 	/**
 	 * Header data: page title, existing page content (introduction), page ID.
-	 * Runs/rewinds the main loop in page mode; reads the posts-page settings
-	 * in home mode.
+	 * Runs/rewinds the main loop in page mode; in home mode the source page is
+	 * resolved by header_page_id() — the official Posts page in the current
+	 * language, so no metadata is ever taken from a page of another language.
 	 *
 	 * @return array{title:string, intro_html:string, id:int}
 	 */
@@ -225,8 +229,13 @@ final class NGCV_Archive {
 		);
 
 		if ( 'home' === self::mode() ) {
-			$page_id    = absint( get_option( 'page_for_posts' ) );
-			$data['id'] = $page_id;
+			/*
+			 * Home mode: the header source is resolved by header_page_id() —
+			 * the official Posts page in the current language, never a page
+			 * belonging to another language.
+			 */
+			$page_id        = self::header_page_id();
+			$data['id']     = $page_id;
 			if ( $page_id ) {
 				$data['title'] = get_the_title( $page_id );
 				$content       = (string) get_post_field( 'post_content', $page_id );
@@ -253,6 +262,50 @@ final class NGCV_Archive {
 
 		self::$header = $data;
 		return $data;
+	}
+
+	/**
+	 * The page ID used for the archive header and related links: the queried
+	 * page in page mode; in home mode the official Posts page *in the current
+	 * language*. Three concepts stay distinct: WordPress `page_for_posts`, the
+	 * NGCV configured archive page, and a static page carrying the NGCV page
+	 * template. A configured page only wins when it *is* that Posts page; when
+	 * it reaches it through a Polylang translation, the current-language page
+	 * still supplies the header, so title, introduction, hero and links never
+	 * come from a page of another language. Resolution stays read-only — no
+	 * translation is ever created or guessed.
+	 *
+	 * @return int
+	 */
+	public static function header_page_id() {
+		if ( 'home' !== self::mode() ) {
+			return (int) get_queried_object_id();
+		}
+
+		$posts_page = NGCV_Template_Router::posts_page_id();
+		if ( ! $posts_page ) {
+			return 0;
+		}
+
+		foreach ( NGCV_Template_Router::configured_archive_ids() as $candidate ) {
+			$candidate = absint( $candidate );
+			if ( ! $candidate ) {
+				continue;
+			}
+			if ( $candidate === $posts_page ) {
+				return $candidate;
+			}
+			if ( NGCV_Polylang::is_active() ) {
+				$translation = NGCV_Polylang::get_translation( $candidate );
+				if ( $translation && absint( $translation ) === $posts_page ) {
+					// The configured page itself belongs to another language:
+					// the current-language Posts page stays the header source.
+					return $posts_page;
+				}
+			}
+		}
+
+		return $posts_page;
 	}
 
 	/**
@@ -308,13 +361,16 @@ final class NGCV_Archive {
 		}
 
 		if ( 'home' === self::mode() ) {
-			$posts_page = absint( get_option( 'page_for_posts' ) );
-			$all_url    = $posts_page ? get_permalink( $posts_page ) : home_url( '/' );
+			$header_page = self::header_page_id();
+			if ( ! $header_page ) {
+				$header_page = NGCV_Template_Router::posts_page_id();
+			}
+			$all_url = $header_page ? get_permalink( $header_page ) : home_url( '/' );
 		} else {
 			$all_url = get_permalink( get_queried_object_id() );
 		}
 
-		echo '<nav class="ngcv-cat-nav" aria-label="' . esc_attr__( 'Browse articles by category', 'nubian-geographic-content-views' ) . '">';
+		echo '<nav class="ngcv-cat-nav ngcv-cat-nav--bar" aria-label="' . esc_attr__( 'Browse articles by category', 'nubian-geographic-content-views' ) . '">';
 		echo '<ul class="ngcv-cat-list">';
 		echo '<li><a class="ngcv-cat-link is-current" href="' . esc_url( $all_url ) . '" aria-current="page">' . esc_html__( 'All', 'nubian-geographic-content-views' ) . '</a></li>';
 		foreach ( $terms as $term ) {

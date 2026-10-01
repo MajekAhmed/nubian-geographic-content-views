@@ -72,6 +72,50 @@ msgstr "ترقيم صفحات المقالات"
 msgid "Available languages"
 msgstr "اللغات المتاحة"
 
+#: includes/class-settings.php:104 includes/class-settings.php:105
+msgid "NGCV Content Views"
+msgstr "NGCV — عارض المحتوى"
+
+#: includes/class-settings.php:117
+msgid "Archive hero image"
+msgstr "صورة غلاف الأرشيف"
+
+#: includes/class-settings.php:311 includes/class-settings.php:316
+msgid "Select image"
+msgstr "اختر صورة"
+
+#: includes/class-settings.php:315 includes/class-settings.php:317
+msgid "Change image"
+msgstr "تغيير الصورة"
+
+#: includes/class-settings.php:318
+msgid "Remove image"
+msgstr "إزالة الصورة"
+
+#: includes/class-settings.php:311 includes/class-settings.php:316
+msgid "Choose the archive hero image"
+msgstr "اختر صورة غلاف الأرشيف"
+
+#: includes/class-settings.php:311 includes/class-settings.php:316
+msgid "Use this image"
+msgstr "استخدام هذه الصورة"
+
+#: includes/class-settings.php:305
+msgid "Archive hero preview"
+msgstr "معاينة غلاف الأرشيف"
+
+#: includes/class-settings.php:322
+msgid "Optional. Overrides the Articles page featured image in the archive hero band. Leave empty to fall back to the page featured image, and to the plain navy background when neither exists. The image applies to all languages."
+msgstr "اختياري. تتجاوز هذه الصورة الصورة المميزة لصفحة المقالات في شريط غلاف الأرشيف. اتركها فارغة للرجوع إلى الصورة المميزة للصفحة، وإلى الخلفية الكحلية الصافية عند غياب الاثنتين. تُطبَّق الصورة على جميع اللغات."
+
+#: includes/class-settings.php:140
+msgid "Articles page"
+msgstr "صفحة المقالات"
+
+#: includes/class-settings.php:194
+msgid "— Select —"
+msgstr "— اختر —"
+
 #: includes/class-archive.php:316
 msgid "Browse articles by category"
 msgstr "تصفّح المقالات حسب التصنيف"
@@ -160,3 +204,55 @@ msgstr "آخر تحديث %s"
 msgctxt "Archive masthead kicker"
 msgid "Archive"
 msgstr "أرشيف"
+
+#: includes/class-settings.php:290
+msgid "Select the NGCV archive page. The official WordPress Posts page (Settings → Reading) always uses the NGCV archive design on its own. Use this setting to choose which page supplies the archive title, introduction and hero when the Posts page is shown — including its Polylang translation in the current language. Static pages should use the \"NGCV — Articles Archive\" page template instead."
+msgstr "اختر صفحة أرشيف NGCV. صفحة مقالات ووردبريس الرسمية (الإعدادات ← القراءة) تستخدم تصميم أرشيف NGCV تلقائيًا دائمًا. استخدم هذا الإعداد لاختيار الصفحة التي تزوّد الأرشيف بالعنوان والمقدمة والغلاف عند عرض صفحة المقالات — بما في ذلك ترجمتها في Polylang للغة الحالية. الصفحات الثابتة يجب أن تستخدم قالب الصفحة \"NGCV — أرشيف المقالات\" بدلاً منه."
+
+#: templates/parts/share.php:35
+msgid "Share on Facebook"
+msgstr "مشاركة على فيسبوك"
+
+#: templates/parts/share.php:39
+msgid "Share on X"
+msgstr "مشاركة على إكس"
+
+#: templates/parts/share.php:43
+msgid "Share on WhatsApp"
+msgstr "مشاركة على واتساب"
+
+#: templates/parts/share.php:47
+msgid "Share on Telegram"
+msgstr "مشاركة على تيليغرام"
+
+#: templates/parts/share.php:51
+msgid "Share on LinkedIn"
+msgstr "مشاركة على لينكدإن"
+
+#: templates/parts/share.php:57
+msgid "Share this article"
+msgstr "شارك هذا المقال"
+
+#: templates/parts/share.php:70
+msgid "Copy article link"
+msgstr "نسخ رابط المقال"
+
+#: templates/parts/share.php:70
+msgid "Copied"
+msgstr "تم النسخ"
+
+#: templates/parts/share.php:70
+msgid "Copy failed"
+msgstr "تعذّر النسخ"
+
+#: templates/parts/share.php:72
+msgid "Copy link"
+msgstr "نسخ الرابط"
+
+#: templates/parts/share.php:78
+msgid "Share via your device"
+msgstr "المشاركة عبر جهازك"
+
+#: templates/parts/share.php:80
+msgid "More options"
+msgstr "خيارات أخرى"

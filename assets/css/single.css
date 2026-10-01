@@ -1,25 +1,34 @@
 /**
  * NGCV — Single article.
  *
- * Composition: editorial header (category → language counterpart → title →
- * standfirst → meta) → documentary plate → [sticky TOC | reading column] →
- * article details → topics → previous/next → related → language switcher →
- * comments. All positioning is logical, so RTL mirrors without overrides.
+ * Composition, top to bottom:
+ *   breadcrumbs → category → title → lede → meta → counterpart
+ *   → documentary plate → [sticky TOC rail | reading column]
+ *   → share → details → topics → previous/next → related → language switcher.
+ *
+ * The reading area is a four-track grid:
+ *
+ *   [ rail 16.5rem ] [ 1fr ] [ measure 42rem ] [ 1fr ]
+ *
+ * The two flexible tracks are equal, so the reading column is optically
+ * centred in the viewport with no fragile margin arithmetic — and it stays
+ * centred in RTL, because the pattern is symmetric and entirely logical. This
+ * is the fix for the v1.2.0 defect, where a 672px prose column sat adrift
+ * inside a 1140px container with ~470px of unexplained dead space beside it.
+ *
+ * Cards, chips and labels live in components/card.css; the share block,
+ * buttons, the language switcher and pagination live in
+ * components/actions.css. Nothing in this file duplicates them.
  */
 
 .ngcv-article {
-	padding-block: var(--ngcv-space-3) var(--ngcv-space-5);
+	padding-block: var(--ngcv-space-4) var(--ngcv-space-6);
 }
 
-.ngcv-article-inner {
-	inline-size: 100%;
-	--ngcv-sticky-top: 6rem;
-}
-
-/* ---------- Header ---------- */
+/* ---------- Article header ---------- */
 
 .ngcv-article-header {
-	margin-block-end: var(--ngcv-space-4);
+	margin-block-end: var(--ngcv-space-3);
 }
 
 .ngcv-article-cats {
@@ -30,41 +39,62 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--ngcv-space-1);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* The title column is capped at a wider measure than the body: a headline
+   that stretches to 42rem reads better than one that stretches to the
+   container, but it must still not become a banner. */
+.ngcv-article-header > .ngcv-container {
+	max-inline-size: calc(var(--ngcv-measure) + var(--ngcv-rail) + var(--ngcv-rail-gap));
 }
 
 .ngcv-article-title {
+	margin: 0 0 var(--ngcv-space-2);
+	color: var(--ngcv-navy);
 	font-family: var(--ngcv-font-heading);
 	font-weight: var(--ngcv-weight-heading);
-	color: var(--ngcv-navy);
 	font-size: clamp(1.9rem, 1.25rem + 2.4vw, 3.05rem);
 	line-height: 1.16;
 	letter-spacing: -0.018em;
-	margin: 0 0 var(--ngcv-space-2);
 	text-wrap: balance;
 	overflow-wrap: break-word;
 }
 
-html[dir="rtl"] .ngcv-article-title {
+html[dir="rtl"] .ngcv-article-title,
+html[lang^="ar"] .ngcv-article-title {
 	letter-spacing: normal;
-	line-height: 1.28;
+	line-height: 1.4;
 }
 
 .ngcv-article-lede {
-	font-size: 1.15rem;
-	line-height: 1.65;
-	color: var(--ngcv-ink);
-	margin: 0 0 var(--ngcv-space-2);
 	max-inline-size: var(--ngcv-measure-wide);
+	margin: 0 0 var(--ngcv-space-3);
+	color: var(--ngcv-ink);
+	font-size: clamp(1.08rem, 1rem + 0.5vw, 1.22rem);
+	line-height: 1.66;
 }
+
+html[dir="rtl"] .ngcv-article-lede {
+	line-height: 1.8;
+}
+
+/* ---------- Metadata ----------
+   Small icons are hand-written data: SVG masks tinted with a token, so dark
+   mode re-tunes them automatically. Decoration only: the text carries the
+   meaning and stays the accessible content. */
 
 .ngcv-article-meta {
 	display: flex;
-	align-items: center;
 	flex-wrap: wrap;
-	gap-block: 0.2rem;
+	align-items: center;
+	gap-block: 0.25rem;
 	color: var(--ngcv-muted);
-	font-size: 0.9rem;
+	font-size: 0.85rem;
 	line-height: 1.5;
+	font-variant-numeric: tabular-nums;
 }
 
 .ngcv-article-meta a {
@@ -73,366 +103,689 @@ html[dir="rtl"] .ngcv-article-title {
 	border-block-end: 1px solid var(--ngcv-sand);
 }
 
-/* Keep each metadata item on one line */
-.ngcv-article-meta time,
-.ngcv-article-meta .ngcv-readtime,
-.ngcv-article-meta .ngcv-meta-author {
-	white-space: nowrap;
-}
-
 .ngcv-article-meta a:hover,
 .ngcv-article-meta a:focus-visible {
 	border-block-end-color: var(--ngcv-gold);
 	color: var(--ngcv-nile);
 }
 
-/* ---------- Documentary featured image ---------- */
+.ngcv-article-meta time,
+.ngcv-article-meta .ngcv-readtime,
+.ngcv-article-meta .ngcv-meta-author {
+	white-space: nowrap;
+}
+
+.ngcv-context-single .ngcv-article-meta time.ngcv-meta-date::before {
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M3 5h18v17H3zm2 5h14v12H5z'/%3E%3Cpath d='M7 2v3M17 2v3M6 9h12v2H6z'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M3 5h18v17H3zm2 5h14v12H5z'/%3E%3Cpath d='M7 2v3M17 2v3M6 9h12v2H6z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.ngcv-context-single .ngcv-article-meta .ngcv-readtime::before {
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm-1 3v5.6l4 2.4 1-1.7-3-1.8V7z'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm-1 3v5.6l4 2.4 1-1.7-3-1.8V7z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---------- Documentary plate ----------
+   The image spans the container while the reading column stays at the
+   measure — the plate is the article's "cover", not part of the text flow. */
 
 .ngcv-article-hero {
 	margin: 0 0 var(--ngcv-space-4);
-	background: var(--ngcv-white);
 }
 
+/* An integer ratio, always: a fractional one (like 1.85) falls back to the
+   replaced-element default when the image is taller than expected, which
+   silently changes the crop between viewports. */
 .ngcv-article-hero .ngcv-media {
-	aspect-ratio: 16 / 9;
-}
-
-.ngcv-article-hero img {
-	border-radius: var(--ngcv-radius-s);
+	aspect-ratio: 21 / 9;
 }
 
 .ngcv-article-hero-caption {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-block-start: 0.75rem;
+	margin-block-start: var(--ngcv-space-1);
 	color: var(--ngcv-muted);
-	font-size: 0.85rem;
-	line-height: 1.5;
-	max-inline-size: var(--ngcv-measure-wide);
+	font-size: 0.8rem;
+	line-height: 1.55;
 }
 
-/* Small gold diamond marker ahead of the caption (logical, so it mirrors). */
-.ngcv-article-hero-caption::before {
-	content: "";
-	flex: 0 0 auto;
-	inline-size: 0.42rem;
-	block-size: 0.42rem;
-	margin-block-start: 0.5rem;
-	background: var(--ngcv-gold);
-	transform: rotate(45deg);
-}
+/* ---------- Reading area ----------
+   Two shapes, one system.
 
-/* ---------- Reading layout: main column + optional sticky TOC ---------- */
+   Default (.ngcv-article-layout): a single centred track at the reading
+   measure. Used on a short article, or when the page has no table of contents.
 
-.ngcv-article-aside {
-	margin-block-end: var(--ngcv-space-4);
-}
+   With a rail (.ngcv-article-layout--with-aside): FOUR explicit tracks.
 
-/* Single-column default (mobile first): the TOC precedes the article body. */
+     1fr  |  var(--ngcv-rail)  gap  var(--ngcv-measure)  |  1fr
+
+   Grid line 1 is the inline-start edge in BOTH directions, so the rail always
+   lands on the inline-start side and the reading column always at the
+   inline-start of the measure — with no direction-specific rule anywhere.
+
+   The two outer 1fr tracks are what remove the defect this redesign set out
+   to fix: the reading column is centred on its own axis, and the rail sits in
+   the slack beside it. The previous layout put the rail in the container and
+   then centred the prose inside the remainder, which left a visible dead
+   margin on the far side of every article. */
+
 .ngcv-article-layout {
 	display: grid;
+	/* The collapsed default: ONE track at the measure. The four-track rail
+	   version below needs ~1180px to keep the reading column at a readable
+	   measure, and forcing it narrower would trade a dead margin for an
+	   unreadable line length — the worse of the two defects. */
 	grid-template-columns: minmax(0, 1fr);
+	gap: var(--ngcv-space-4);
+	align-items: start;
 }
 
-/* Container query: the sticky rail appears only when the article's own
-   available width can hold it (keeps sidebars-enabled layouts intact).
-   The container is the article wrapper, so the query styles the layout
-   below it; without container-query support the TOC simply stays inline. */
-@supports (container-type: inline-size) {
-	.ngcv-article-inner {
-		container-type: inline-size;
-		container-name: ngcv-inner;
-	}
-
-	@container ngcv-inner (min-width: 60rem) {
-		.ngcv-article-layout--with-aside {
-			grid-template-columns: minmax(0, 1fr) 16.5rem;
-			gap: var(--ngcv-space-4);
-			align-items: start;
-		}
-
-		/* Reading column at inline-start, TOC rail at inline-end. Explicit
-		   placement keeps this identical in LTR and RTL (column 1 is always
-		   the inline-start column). */
-		.ngcv-article-layout--with-aside .ngcv-article-main {
-			grid-column: 1;
-			grid-row: 1;
-			min-inline-size: 0;
-		}
-
-		.ngcv-article-layout--with-aside .ngcv-article-aside {
-			grid-column: 2;
-			grid-row: 1;
-			margin-block-end: 0;
-		}
-
-		.ngcv-article-layout--with-aside .ngcv-toc {
-			position: sticky;
-			top: var(--ngcv-sticky-top);
-			max-block-size: calc(100vh - var(--ngcv-sticky-top) - 2rem);
-			overflow-y: auto;
-			overscroll-behavior: contain;
-		}
-
-		/* The rail shows the whole list, so the toggle is only useful on
-		   small screens (where the TOC is inline and scrolls with the page). */
-		.ngcv-article-layout--with-aside .ngcv-toc-toggle {
-			display: none;
-		}
-	}
+.ngcv-article-layout > .ngcv-article-main {
+	grid-column: 1;
+	grid-row: 1;
+	max-inline-size: var(--ngcv-measure);
+	margin-inline: auto;
 }
 
-/* ---------- Table of contents (server-rendered; JS only enhances) ---------- */
+.ngcv-article-layout--with-aside > .ngcv-article-aside {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+/* The measure track is `start`, not `center`: the prose must begin at the
+   measure's inline-start edge so the last line has the same rag as the
+   first. */
+.ngcv-article-layout--with-aside > .ngcv-article-main {
+	grid-column: 1;
+	grid-row: 2;
+}
+
+/* The four-track rail — [1fr] [rail] [measure] [1fr] — and the explicit
+   column placement that goes with it live in responsive.css, inside the
+   min-width query that can actually fit them. Defining them here as well
+   would mean two sources of truth for one grid, and they could drift. */
+
+.ngcv-article-main {
+	min-inline-size: 0;
+}
+
+.ngcv-article-aside {
+	min-inline-size: 0;
+}
+
+.ngcv-article-body {
+	min-inline-size: 0;
+}
+
+/* Support content (share, details, topics) aligns to the reading column and
+   never widens past it: a full-container footer fights the measure and makes
+   the page feel unbalanced. */
+.ngcv-article-footer {
+	max-inline-size: var(--ngcv-measure);
+}
+
+/* ---------- Table of contents ----------
+   On wide screens a real rail: separated from the prose by a hairline, sticky
+   below the theme header, and bounded in height so a long contents list never
+   runs off-screen. Below the breakpoint the same markup collapses into a
+   toggle block (responsive.css) — the semantic <nav><ol> is unchanged. */
 
 .ngcv-toc {
-	margin: 0 0 var(--ngcv-space-4);
-	background: var(--ngcv-surface-warm);
-	border-inline-start: var(--ngcv-rule) solid var(--ngcv-gold);
-	border-radius: var(--ngcv-radius-s);
-	padding: var(--ngcv-space-2);
+	padding-inline-start: var(--ngcv-space-3);
+	border-inline-start: 1px solid var(--ngcv-hairline);
 }
+
+/* Sticky only where the rail actually is a rail, which is width-dependent —
+   see responsive.css, which owns that rule alongside the breakpoint. */
 
 .ngcv-toc-head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--ngcv-space-2);
+	margin-block-end: var(--ngcv-space-2);
 }
 
 .ngcv-toc-title {
-	font-family: var(--ngcv-font-heading);
-	color: var(--ngcv-navy);
-	font-size: 0.8rem;
-	line-height: 1.3;
 	margin: 0;
+	color: var(--ngcv-navy);
 }
 
 .ngcv-toc-toggle {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-inline-size: 2.2rem;
-	min-block-size: 2.2rem;
+	inline-size: 2rem;
+	block-size: 2rem;
 	padding: 0;
+	background: var(--ngcv-surface-raised);
 	border: 1px solid var(--ngcv-hairline);
 	border-radius: var(--ngcv-radius-xs);
-	background: var(--ngcv-white);
 	color: var(--ngcv-navy);
 	cursor: pointer;
+	transition: border-color var(--ngcv-motion-fast);
+}
+
+.ngcv-toc-toggle:hover,
+.ngcv-toc-toggle:focus-visible {
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-gold);
+}
+
+/* The chevron points at the state it will move the list TO. */
+.ngcv-toc-toggle[aria-expanded="true"] .ngcv-toc-toggle-icon {
+	transform: rotate(180deg);
 }
 
 .ngcv-toc-toggle-icon {
-	font-size: 0.9rem;
-	line-height: 1;
-	transition: transform 0.2s ease;
-}
-
-.ngcv-toc-toggle[aria-expanded="false"] .ngcv-toc-toggle-icon {
-	transform: rotate(-90deg);
+	display: block;
+	transition: transform var(--ngcv-motion-fast);
 }
 
 .ngcv-toc-list {
-	margin: var(--ngcv-space-2) 0 0;
-	padding-inline-start: 1.3rem;
-}
-
-.ngcv-toc-list[hidden] {
-	display: none;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: ngcv-toc;
+	font-size: 0.86rem;
+	line-height: 1.55;
 }
 
 .ngcv-toc-item {
-	color: var(--ngcv-ink);
-	font-size: 0.92rem;
-	line-height: 1.55;
-	margin-block-end: 0.4rem;
+	margin-block-end: 0.35rem;
+	counter-increment: ngcv-toc;
 }
 
-.ngcv-toc-h3 {
-	margin-inline-start: 0.5rem;
-	font-size: 0.95em;
+/* Numbered in CSS, not in the markup: the template emits <ol> for semantics
+   and leaves the visual numbering here, so the list stays readable if these
+   styles ever fail to load.
+
+   The counter lives on the LINK, not on the <li>. The link is display:block,
+   so a marker on the <li> would be a block-level sibling of it: the number
+   would sit on its own line above the entry, with the title indented beside
+   it. On the anchor it becomes the first inline box of the entry text. */
+.ngcv-toc-item a::before {
+	content: counter(ngcv-toc) ".";
+	display: inline-block;
+	inline-size: 1.6em;
+	color: var(--ngcv-muted);
+	font-variant-numeric: tabular-nums;
 }
 
 .ngcv-toc-item a {
-	color: var(--ngcv-nile);
+	display: block;
+	padding: 0.34rem 0.6rem;
+	color: var(--ngcv-muted);
 	text-decoration: none;
+	border-inline-start: 2px solid transparent;
+	transition:
+		color var(--ngcv-motion-fast),
+		border-color var(--ngcv-motion-fast);
 }
 
 .ngcv-toc-item a:hover,
 .ngcv-toc-item a:focus-visible {
-	text-decoration: underline;
-	text-underline-offset: 3px;
+	color: var(--ngcv-navy);
+	border-inline-start-color: var(--ngcv-hairline-strong);
 }
 
 .ngcv-toc-item a.is-active {
 	color: var(--ngcv-navy);
-	font-weight: var(--ngcv-weight-strong);
-	border-block-end: 2px solid var(--ngcv-gold);
-}
-/* ---------- Reading typography (the_content output) ---------- */
-
-.ngcv-article-body {
-	margin-block-end: var(--ngcv-space-4);
+	border-inline-start-color: var(--ngcv-gold);
+	font-weight: 700;
 }
 
-.ngcv-prose {
-	font-family: var(--ngcv-font-content);
-	color: var(--ngcv-ink);
-	font-size: 1.0625rem;
-	line-height: 1.8;
-	max-inline-size: var(--ngcv-measure);
+html[dir="rtl"] .ngcv-prose {
+	line-height: 1.95;
+}
+
+/* Depth cue for nested entries. The template emits .ngcv-toc-h{level}, so this
+   covers every nesting depth without hard-coding one class per level. */
+.ngcv-toc-h3 a {
+	padding-inline-start: 1.5rem;
+	font-size: 0.94em;
+}
+
+.ngcv-toc-h4 a {
+	padding-inline-start: 2.2rem;
+	font-size: 0.9em;
+}
+
+.ngcv-prose > * {
+	margin-block: 0 1.15em;
+}
+
+.ngcv-prose > :first-child {
+	margin-block-start: 0;
+}
+
+.ngcv-prose > :last-child {
+	margin-block-end: 0;
 }
 
 .ngcv-prose p {
 	margin-block: 0 1.15em;
 }
 
-/* Keep floated images inside the reading column (and clear of the TOC rail) */
-.ngcv-prose::after {
-	content: "";
-	display: block;
-	clear: both;
-}
+/* ---------- Headings ---------- */
 
-.ngcv-prose h2,
-.ngcv-prose h3,
-.ngcv-prose h4 {
+.ngcv-prose :where(h2, h3, h4) {
+	color: var(--ngcv-navy);
 	font-family: var(--ngcv-font-heading);
 	font-weight: var(--ngcv-weight-heading);
-	color: var(--ngcv-navy);
-	line-height: 1.3;
-	letter-spacing: -0.01em;
-	margin-block: 1.9em 0.7em;
-	text-wrap: balance;
-}
-
-html[dir="rtl"] .ngcv-prose h2,
-html[dir="rtl"] .ngcv-prose h3,
-html[dir="rtl"] .ngcv-prose h4 {
-	letter-spacing: normal;
-	line-height: 1.42;
+	/* Anchor targets must clear the sticky theme header when the table of
+	   contents jumps to them. */
+	scroll-margin-block-start: var(--ngcv-sticky-top);
 }
 
 .ngcv-prose h2 {
+	margin-block: 2em 0.6em;
 	font-size: 1.5em;
-	scroll-margin-block-start: 5.5rem;
+	line-height: 1.28;
+	letter-spacing: -0.014em;
 }
 
 .ngcv-prose h3 {
+	margin-block: 1.7em 0.5em;
 	font-size: 1.25em;
-	scroll-margin-block-start: 5.5rem;
+	line-height: 1.32;
+	letter-spacing: -0.01em;
 }
 
 .ngcv-prose h4 {
+	margin-block: 1.5em 0.4em;
 	font-size: 1.08em;
-	scroll-margin-block-start: 5.5rem;
+	line-height: 1.4;
 }
 
+html[dir="rtl"] .ngcv-prose :where(h2, h3, h4) {
+	letter-spacing: normal;
+	line-height: 1.45;
+}
+
+/* ---------- Links ---------- */
+
 .ngcv-prose a {
-	color: var(--ngcv-blue);
+	color: var(--ngcv-nile);
 	text-decoration: underline;
+	text-underline-offset: 0.18em;
 	text-decoration-thickness: 1px;
-	text-underline-offset: 3px;
+	transition: color var(--ngcv-motion-fast);
 }
 
 .ngcv-prose a:hover,
 .ngcv-prose a:focus-visible {
-	color: var(--ngcv-nile);
-	text-decoration-thickness: 2px;
+	color: var(--ngcv-navy);
 }
 
-.ngcv-prose img,
-.ngcv-prose video,
-.ngcv-prose iframe,
-.ngcv-prose embed,
-.ngcv-prose object {
-	max-inline-size: 100%;
-	block-size: auto;
-}
-
-.ngcv-prose figure {
-	margin: 1.7em 0;
-}
-
-.ngcv-prose figcaption {
-	color: var(--ngcv-muted);
-	font-size: 0.85rem;
-	line-height: 1.5;
-	padding-block-start: 0.45rem;
-}
+/* ---------- Quotes ---------- */
 
 .ngcv-prose blockquote {
-	margin: 1.7em 0;
-	padding: var(--ngcv-space-2) var(--ngcv-space-3);
-	border-inline-start: var(--ngcv-rule) solid var(--ngcv-gold);
+	margin-block: 1.8em;
+	margin-inline: 0;
+	padding: var(--ngcv-space-3) var(--ngcv-space-4);
 	background: var(--ngcv-surface-warm);
-	border-radius: var(--ngcv-radius-s);
-	color: var(--ngcv-navy);
-	font-size: 1.05em;
+	border-inline-start: var(--ngcv-rule) solid var(--ngcv-gold);
+	border-radius: var(--ngcv-radius-xs);
+	color: var(--ngcv-ink);
+	font-size: 1.06em;
+	line-height: 1.7;
 }
 
 .ngcv-prose blockquote p:last-child {
 	margin-block-end: 0;
 }
 
-.ngcv-prose pre {
-	overflow-x: auto;
-	background: var(--ngcv-navy);
-	color: var(--ngcv-gray);
-	padding: var(--ngcv-space-2);
-	border-radius: var(--ngcv-radius-s);
-	font-size: 0.9em;
-	line-height: 1.6;
-	direction: ltr;
-	text-align: start;
+.ngcv-prose blockquote cite {
+	display: block;
+	margin-block-start: 0.7em;
+	color: var(--ngcv-muted);
+	font-size: 0.88em;
+	font-style: normal;
 }
 
-.ngcv-prose code {
-	background: var(--ngcv-gray);
-	border-radius: var(--ngcv-radius-xs);
-	padding: 0.1em 0.35em;
-	font-size: 0.92em;
-	direction: ltr;
-	unicode-bidi: embed;
-}
+/* ---------- Lists ---------- */
 
-.ngcv-prose ul,
-.ngcv-prose ol {
-	padding-inline-start: 1.4rem;
-	margin-block: 0 1.15em;
+.ngcv-prose :where(ul, ol) {
+	margin-block: 0 1.3em;
+	padding-inline-start: 1.5rem;
 }
 
 .ngcv-prose li {
-	margin-block-end: 0.4em;
+	margin-block-end: 0.5em;
 }
+/* ---------- Article details (documentary record) ---------- */
+
+.ngcv-details {
+	margin-block-start: var(--ngcv-space-3);
+	padding: var(--ngcv-space-3);
+	background: var(--ngcv-surface-warm);
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-m);
+}
+
+.ngcv-details-title {
+	margin: 0 0 var(--ngcv-space-2);
+	color: var(--ngcv-navy);
+}
+
+.ngcv-details-list {
+	display: grid;
+	grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+	gap: 0.4rem var(--ngcv-space-3);
+	margin: 0;
+	font-size: 0.88rem;
+}
+
+.ngcv-details-label {
+	color: var(--ngcv-muted);
+	font-weight: 600;
+}
+
+.ngcv-details-value {
+	margin: 0;
+	color: var(--ngcv-ink);
+}
+
+/* ---------- Topics ---------- */
+
+.ngcv-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-block-start: var(--ngcv-space-3);
+	padding: 0;
+	list-style: none;
+}
+
+.ngcv-tags a {
+	display: inline-block;
+	padding: 0.28rem 0.7rem;
+	background: var(--ngcv-surface-sand);
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-xs);
+	color: var(--ngcv-earth-dark);
+	font-size: 0.8rem;
+	text-decoration: none;
+	transition:
+		border-color var(--ngcv-motion-fast),
+		color var(--ngcv-motion-fast);
+}
+
+.ngcv-tags a:hover,
+.ngcv-tags a:focus-visible {
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-gold);
+}
+
+/* ---------- Previous / next navigation ----------
+   Rendered by WordPress's own the_post_navigation(), so the markup is core's:
+   .nav-links > .nav-previous / .nav-next, with .ngcv-nav-label and
+   .ngcv-nav-title supplied by NGCV_Single::post_navigation(). Scoped under
+   .ngcv-article so the plugin never restyles these classes site-wide. */
+
+.ngcv-article .nav-links {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--ngcv-space-2);
+	margin-block-start: var(--ngcv-section-gap);
+	padding-block-start: var(--ngcv-space-3);
+	border-block-start: 1px solid var(--ngcv-hairline);
+}
+
+.ngcv-article .nav-links a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	padding: var(--ngcv-space-2);
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-s);
+	text-decoration: none;
+	transition:
+		border-color var(--ngcv-motion-fast),
+		box-shadow var(--ngcv-motion-fast);
+}
+
+.ngcv-article .nav-links a:hover,
+.ngcv-article .nav-links a:focus-visible {
+	border-color: var(--ngcv-hairline-strong);
+	box-shadow: var(--ngcv-elev-1);
+}
+
+.ngcv-article .nav-next a {
+	align-items: flex-end;
+	text-align: end;
+}
+
+.ngcv-nav-label {
+	color: var(--ngcv-muted);
+	font-size: 0.8rem;
+}
+
+.ngcv-nav-title {
+	color: var(--ngcv-navy);
+	font-family: var(--ngcv-font-card-title);
+	font-weight: var(--ngcv-weight-heading);
+	font-size: 0.98rem;
+	line-height: 1.4;
+}
+
+.ngcv-article .nav-links a:hover .ngcv-nav-title,
+.ngcv-article .nav-links a:focus-visible .ngcv-nav-title {
+	color: var(--ngcv-nile);
+}
+
+/* ---------- Related articles ---------- */
+
+.ngcv-related {
+	margin-block-start: var(--ngcv-section-gap);
+}
+
+.ngcv-related-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--ngcv-space-4) var(--ngcv-space-3);
+}
+
+/* ---------- Pagination inside articles (<!--nextpage-->) ---------- */
+
+.ngcv-page-links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin-block-start: var(--ngcv-space-4);
+	padding-block-start: var(--ngcv-space-3);
+	border-block-start: 1px solid var(--ngcv-hairline);
+}
+
+.ngcv-page-links-label {
+	color: var(--ngcv-muted);
+	font-size: 0.85rem;
+}
+
+.ngcv-page-links-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-inline-size: 2.25rem;
+	min-block-size: 2.25rem;
+	border: 1px solid var(--ngcv-hairline);
+	border-radius: var(--ngcv-radius-xs);
+	color: var(--ngcv-ink);
+	font-size: 0.85rem;
+	text-decoration: none;
+	transition:
+		border-color var(--ngcv-motion-fast),
+		color var(--ngcv-motion-fast);
+}
+
+.ngcv-page-links a:hover,
+.ngcv-page-links a:focus-visible {
+	border-color: var(--ngcv-nile);
+	color: var(--ngcv-nile);
+}
+
+/* ---------- End-of-article language switcher ---------- */
+
+.ngcv-lang-nav--footer {
+	margin-block-start: var(--ngcv-section-gap);
+	padding-block-start: var(--ngcv-space-3);
+	border-block-start: 1px solid var(--ngcv-hairline);
+}
+
+/* ---------- Comments ----------
+   The theme renders them; the plugin only makes sure headings and text sit
+   inside its own reading measure and the dark-mode ink. */
+
+.ngcv-context .comments-title,
+.ngcv-context .comment-reply-title {
+	color: var(--ngcv-navy);
+	font-family: var(--ngcv-font-heading);
+	font-weight: var(--ngcv-weight-heading);
+}
+
+.ngcv-context .comment-body,
+.ngcv-context .comment-content {
+	color: var(--ngcv-ink);
+	line-height: 1.75;
+}
+
+/* ---------- Dark mode ----------
+   One pattern, repeated: components that use the navy as TEXT on a light
+   surface flip to the dark ink. The gold wash behind a pull-quote is
+   retuned so the quote text keeps AA contrast on the dark warm surface. */
+
+body.digital_newspaper_dark_mode .ngcv-article-title,
+body.digital_newspaper_dark_mode .ngcv-prose :where(h2, h3, h4),
+body.digital_newspaper_dark_mode .ngcv-toc-title,
+body.digital_newspaper_dark_mode .ngcv-details-title,
+body.digital_newspaper_dark_mode .ngcv-nav-title,
+body.digital_newspaper_dark_mode .ngcv-context .comments-title,
+body.digital_newspaper_dark_mode .ngcv-context .comment-reply-title {
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-prose :where(th, td) {
+	border-color: var(--ngcv-hairline);
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-prose blockquote {
+	background: rgba(255, 222, 0, 0.1);
+	border-inline-start-color: var(--ngcv-gold);
+}
+
+body.digital_newspaper_dark_mode .ngcv-prose a:hover,
+body.digital_newspaper_dark_mode .ngcv-prose a:focus-visible,
+body.digital_newspaper_dark_mode .ngcv-toc-item a:hover,
+body.digital_newspaper_dark_mode .ngcv-toc-item a:focus-visible,
+body.digital_newspaper_dark_mode .ngcv-toc-item a.is-active,
+body.digital_newspaper_dark_mode .ngcv-article .nav-links a:hover .ngcv-nav-title,
+body.digital_newspaper_dark_mode .ngcv-article .nav-links a:focus-visible .ngcv-nav-title {
+	color: var(--ngcv-gold);
+}
+
+body.digital_newspaper_dark_mode .ngcv-article-meta a:hover,
+body.digital_newspaper_dark_mode .ngcv-article-meta a:focus-visible {
+	color: var(--ngcv-gold);
+}
+
+body.digital_newspaper_dark_mode .ngcv-toc-toggle {
+	background: var(--ngcv-surface-raised);
+	color: var(--ngcv-ink);
+}
+
+body.digital_newspaper_dark_mode .ngcv-toc-toggle:hover,
+body.digital_newspaper_dark_mode .ngcv-toc-toggle:focus-visible {
+	border-color: var(--ngcv-gold);
+	color: var(--ngcv-gold);
+}
+
+/* ---------- Related articles ---------- */
+
+.ngcv-related {
+	margin-block-start: var(--ngcv-section-gap);
+}
+
+.ngcv-related-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--ngcv-space-4) var(--ngcv-space-3);
+}
+
+.ngcv-prose li::marker {
+	color: var(--ngcv-earth-dark);
+}
+
+/* ---------- Figures, images and captions ---------- */
+
+.ngcv-prose figure {
+	margin-block: 1.8em;
+}
+
+.ngcv-prose img {
+	max-inline-size: 100%;
+	block-size: auto;
+	border-radius: var(--ngcv-radius-xs);
+}
+
+.ngcv-prose figcaption,
+.ngcv-prose .wp-caption-text {
+	margin-block-start: var(--ngcv-space-1);
+	color: var(--ngcv-muted);
+	font-size: 0.82rem;
+	line-height: 1.6;
+}
+
+/* ---------- Tables ---------- */
 
 .ngcv-prose table {
 	inline-size: 100%;
+	margin-block: 1.8em;
 	border-collapse: collapse;
-	margin-block: 1.7em;
-	font-size: 0.95em;
+	font-size: 0.94rem;
 }
 
-.ngcv-prose th,
-.ngcv-prose td {
+.ngcv-prose :where(th, td) {
+	padding: 0.6rem 0.75rem;
 	border: 1px solid var(--ngcv-hairline);
-	padding: 0.55rem 0.8rem;
 	text-align: start;
-	line-height: 1.5;
+	vertical-align: top;
 }
 
 .ngcv-prose th {
 	background: var(--ngcv-surface-warm);
 	color: var(--ngcv-navy);
+	font-weight: var(--ngcv-weight-strong);
 }
 
-.ngcv-prose hr {
-	border: 0;
-	border-block-start: 1px solid var(--ngcv-hairline-strong);
-	margin-block: 2.4em;
+/* ---------- Code ---------- */
+
+.ngcv-prose code {
+	padding: 0.12em 0.35em;
+	background: var(--ngcv-surface-muted);
+	border-radius: var(--ngcv-radius-xs);
+	font-size: 0.9em;
 }
 
-/* WordPress alignment classes inside the reading column */
+/* Exception (documented): code is not prose. It reads left-to-right in both
+   layouts, so it needs an explicit direction rather than a logical one. */
+.ngcv-prose pre,
+.ngcv-prose code {
+	direction: ltr;
+	unicode-bidi: embed;
+	text-align: start;
+}
+
+.ngcv-prose pre {
+	overflow-x: auto;
+	padding: var(--ngcv-space-2);
+	background: var(--ngcv-surface-muted);
+	border-radius: var(--ngcv-radius-xs);
+	line-height: 1.6;
+}
+
+/* Exception (documented): WordPress names these classes for PHYSICAL sides,
+   so they must be swapped for RTL. The margins stay logical. */
 .ngcv-prose .alignleft {
 	float: left;
 	margin-inline: 0 1.2em;
@@ -443,365 +796,37 @@ html[dir="rtl"] .ngcv-prose h4 {
 	margin-inline: 1.2em 0;
 }
 
+[dir="rtl"] .ngcv-prose .alignleft {
+	float: right;
+	margin-inline: 1.2em 0;
+}
+
+[dir="rtl"] .ngcv-prose .alignright {
+	float: left;
+	margin-inline: 0 1.2em;
+}
+
 .ngcv-prose .aligncenter {
-	display: block;
 	margin-inline: auto;
 }
 
-/* ---------- Paginated articles (<!--nextpage-->) ---------- */
-
-.ngcv-page-links {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.4rem;
-	margin-block: var(--ngcv-space-3) 0;
-	color: var(--ngcv-muted);
-	font-size: 0.9rem;
-}
-
-.ngcv-page-links a,
-.ngcv-page-links-item {
-	display: inline-block;
-	min-inline-size: 2.1rem;
-	padding: 0.35rem 0.6rem;
-	border: 1px solid var(--ngcv-hairline);
-	border-radius: var(--ngcv-radius-xs);
-	text-align: center;
-	color: var(--ngcv-navy);
-	text-decoration: none;
-}
-
-.ngcv-page-links a:hover {
-	border-color: var(--ngcv-navy);
-}
-
-/* ---------- Article details (real, existing data only) ---------- */
-
-.ngcv-details {
-	margin-block: var(--ngcv-space-4) var(--ngcv-space-3);
-	max-inline-size: var(--ngcv-measure);
-}
-
-.ngcv-details-title {
-	font-family: var(--ngcv-font-heading);
-	font-weight: var(--ngcv-weight-heading);
-	color: var(--ngcv-navy);
-	font-size: 0.8rem;
-	margin: 0 0 var(--ngcv-space-2);
-}
-
-.ngcv-details-list {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: 0.5rem var(--ngcv-space-3);
-	margin: 0;
-}
-
-.ngcv-details-item {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	align-items: baseline;
-	border-block-end: 1px solid var(--ngcv-hairline);
-	padding-block-end: 0.5rem;
-}
-
-.ngcv-details-label {
-	flex: 0 0 auto;
-	min-inline-size: 8rem;
-	color: var(--ngcv-earth);
-	font-size: 0.78rem;
-}
-
-.ngcv-details-value {
-	color: var(--ngcv-ink);
-	font-size: 0.9rem;
-	line-height: 1.5;
-	overflow-wrap: break-word;
-}
-
-/* ---------- Footer: topics (existing tags) ---------- */
-
-.ngcv-article-footer {
-	padding-block-start: var(--ngcv-space-3);
-	border-block-start: 1px solid var(--ngcv-hairline);
-}
-
-.ngcv-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--ngcv-space-1);
-}
-
-.ngcv-tags a {
-	display: inline-block;
-	padding: 0.3rem 0.8rem;
-	border: 1px solid var(--ngcv-sand);
-	border-radius: var(--ngcv-radius-xs);
-	background: var(--ngcv-white);
-	color: var(--ngcv-earth);
-	font-size: 0.85rem;
-	line-height: 1.4;
-	text-decoration: none;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.ngcv-tags a:hover,
-.ngcv-tags a:focus-visible {
-	background: var(--ngcv-surface-sand);
-	color: var(--ngcv-navy);
-}
-/* ---------- End of article: previous / next ---------- */
-
-.ngcv-context .post-navigation {
-	margin-block: var(--ngcv-space-4) 0;
-}
-
-.ngcv-context .post-navigation .nav-links {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: var(--ngcv-space-2);
-	border-block-start: var(--ngcv-rule) solid var(--ngcv-navy);
-	padding-block-start: var(--ngcv-space-2);
-}
-
-.ngcv-context .post-navigation .nav-previous,
-.ngcv-context .post-navigation .nav-next {
-	min-inline-size: 0;
-}
-
-.ngcv-context .post-navigation .nav-next {
-	text-align: end;
-}
-
-.ngcv-nav-label {
-	display: block;
-	color: var(--ngcv-earth);
-	font-size: 0.78rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
-html[dir="rtl"] .ngcv-nav-label {
-	text-transform: none;
-	letter-spacing: normal;
-}
-
-.ngcv-nav-title {
-	display: block;
-	color: var(--ngcv-navy);
-	font-weight: var(--ngcv-weight-strong);
-	line-height: 1.45;
-	overflow-wrap: break-word;
-}
-
-.ngcv-context .post-navigation a {
-	text-decoration: none;
-}
-
-.ngcv-context .post-navigation a:hover .ngcv-nav-title,
-.ngcv-context .post-navigation a:focus-visible .ngcv-nav-title {
-	text-decoration: underline;
-	text-decoration-color: var(--ngcv-gold);
-	text-decoration-thickness: var(--ngcv-rule);
-	text-underline-offset: 4px;
-}
-
-/* ---------- Related articles ---------- */
-
-.ngcv-related {
-	margin-block: var(--ngcv-space-5) 0;
-	padding-block-start: var(--ngcv-space-4);
-	border-block-start: 1px solid var(--ngcv-hairline);
-}
-
-.ngcv-related-grid {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: var(--ngcv-space-3);
-}
-
-/* ---------- Language switcher (end of article) ---------- */
-
-.ngcv-lang-nav {
-	margin-block: var(--ngcv-space-4) 0;
-	padding-block-start: var(--ngcv-space-3);
-	border-block-start: 1px solid var(--ngcv-hairline);
-}
-
-/* ---------- Comments (native markup, restrained editorial skin) ---------- */
-
-.ngcv-context .comments-area {
-	margin-block: var(--ngcv-space-5) 0;
-	padding-block-start: var(--ngcv-space-3);
-	border-block-start: 1px solid var(--ngcv-hairline);
-}
-
-.ngcv-context .comments-title,
-.ngcv-context .comment-reply-title {
-	font-family: var(--ngcv-font-heading);
-	color: var(--ngcv-navy);
-	font-weight: var(--ngcv-weight-heading);
-}
-
-.ngcv-context .comment-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.ngcv-context .comment-list .children {
-	list-style: none;
-	margin: 0;
-	padding-inline-start: var(--ngcv-space-3);
-}
-
-.ngcv-context .comment-body {
-	border: 1px solid var(--ngcv-hairline);
-	border-radius: var(--ngcv-radius-s);
-	padding: var(--ngcv-space-2);
-	margin-block-end: var(--ngcv-space-2);
-	background: var(--ngcv-white);
-}
-
-.ngcv-context .comment-form input,
-.ngcv-context .comment-form textarea {
+.ngcv-prose :where(.wp-caption, .gallery-caption) {
 	max-inline-size: 100%;
 }
 
-/* ---------- Wide-screen article composition ---------- */
-
-@media (min-width: 1024px) {
-	.ngcv-article-hero .ngcv-media {
-		aspect-ratio: 2 / 1;
-	}
-
-	.ngcv-context .post-navigation .nav-links {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--ngcv-space-3);
-	}
+.ngcv-context-single .ngcv-article-meta time::before,
+.ngcv-context-single .ngcv-article-meta .ngcv-meta-author::before,
+.ngcv-context-single .ngcv-article-meta .ngcv-readtime::before {
+	content: "";
+	display: inline-block;
+	inline-size: 0.95em;
+	block-size: 0.95em;
+	margin-inline-end: 0.45em;
+	vertical-align: -0.12em;
+	background-color: var(--ngcv-nile);
 }
 
-/* =====================================================================
-   Dark mode — single article only (body class from the Digital Newspaper
-   theme toggle). Mirrors the archive fix: surfaces tuned to sit on the
-   theme's dark page background (#27272b / --inner-container-bk #202024)
-   with a subtle navy cast. The three brand tokens (--ngcv-navy,
-   --ngcv-gold, --ngcv-blue) are NOT redefined; elements that use the navy
-   as TEXT on light surfaces flip to the dark ink here. Light mode is
-   untouched: every rule requires body.digital_newspaper_dark_mode.
-   ===================================================================== */
-
-body.digital_newspaper_dark_mode .ngcv-context-single {
-	/* Surfaces (hero plate, TOC, blockquotes, table heads, comments) */
-	--ngcv-white: #242429;
-	--ngcv-surface-warm: #1E1E24;
-	--ngcv-surface-sand: #16161B;
-	--ngcv-gray: #1A1A1F;
-
-	/* Hairlines */
-	--ngcv-hairline: #3A3A44;
-	--ngcv-hairline-strong: #4B4B57;
-
-	/* Text */
-	--ngcv-ink: #F2F3F7;
-	--ngcv-muted: #B9C0CE;
-
-	/* Derived accents re-tuned for AA on dark surfaces */
-	--ngcv-nile: #9BB8F5;   /* links */
-	--ngcv-earth: #C9A468;  /* labels (details, nav) */
-	--ngcv-earth-dark: #DCC28C;
-
-	/* Shadow: deepen so elevation still reads on the dark page */
-	--ngcv-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(0, 0, 0, 0.45);
-}
-
-/* ---------- Header: title + meta ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-article-title {
-	color: var(--ngcv-ink);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-article-meta a {
-	color: var(--ngcv-ink);
-	border-block-end-color: var(--ngcv-hairline-strong);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-article-meta a:hover,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-article-meta a:focus-visible {
-	color: var(--ngcv-gold);
-}
-
-/* ---------- Prose: headings, quotes, tables, code ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose h2,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose h3,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose h4,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose blockquote,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose th,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-prose code {
-	color: var(--ngcv-ink);
-}
-
-/* Navy rule above previous/next would vanish on the dark page */
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-context .post-navigation .nav-links {
-	border-block-start-color: var(--ngcv-hairline-strong);
-}
-
-/* ---------- Table of contents ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-toc-title,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-toc-toggle {
-	color: var(--ngcv-ink);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-toc-toggle:hover,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-toc-toggle:focus-visible {
-	border-color: var(--ngcv-gold);
-	color: var(--ngcv-gold);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-toc-item a.is-active {
-	color: var(--ngcv-gold);
-}
-
-/* ---------- Pagination inside articles (<!--nextpage-->) ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-page-links a,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-page-links-item {
-	color: var(--ngcv-ink);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-page-links a:hover,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-page-links a:focus-visible {
-	border-color: var(--ngcv-nile);
-}
-
-/* ---------- Article details + topics ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-details-title {
-	color: var(--ngcv-ink);
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-tags a {
-	color: var(--ngcv-earth); /* re-tuned to #C9A468 via the token above */
-}
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-tags a:hover,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-tags a:focus-visible {
-	color: var(--ngcv-gold);
-}
-
-/* ---------- Previous / next navigation ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-nav-title {
-	color: var(--ngcv-ink);
-}
-
-/* ---------- Comments ---------- */
-
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-context .comments-title,
-body.digital_newspaper_dark_mode .ngcv-context-single .ngcv-context .comment-reply-title {
-	color: var(--ngcv-ink);
+.ngcv-context-single .ngcv-article-meta .ngcv-meta-author::before {
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7.5' r='4'/%3E%3Cpath d='M4 20.5c0-4.2 3.8-6.3 8-6.3s8 2.1 8 6.3z'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7.5' r='4'/%3E%3Cpath d='M4 20.5c0-4.2 3.8-6.3 8-6.3s8 2.1 8 6.3z'/%3E%3C/svg%3E") center / contain no-repeat;
 }

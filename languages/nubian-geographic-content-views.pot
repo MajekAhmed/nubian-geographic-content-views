@@ -7,13 +7,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T19:09:45+00:00\n"
+"POT-Creation-Date: 2026-09-30T10:25:08+00:00\n"
 "PO-Revision-Date: \n"
 "Language-Team: \n"
 "X-Generator: NGCV build-i18n\n"
 "X-Domain: nubian-geographic-content-views\n"
 
-#: templates/archive-articles.php:41
+#: templates/archive-articles.php:55
 msgid "%s article"
 msgid_plural "%s articles"
 msgstr[0] ""
@@ -31,8 +31,16 @@ msgid_plural "%s words"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-archive.php:318
+#: includes/class-archive.php:375
 msgid "All"
+msgstr ""
+
+#: includes/class-settings.php:119
+msgid "Archive hero image"
+msgstr ""
+
+#: includes/class-settings.php:312 includes/class-settings.php:314
+msgid "Archive hero preview"
 msgstr ""
 
 #: templates/parts/article-meta.php:22
@@ -47,11 +55,15 @@ msgstr ""
 msgid "Article pages"
 msgstr ""
 
-#: includes/class-archive.php:237
+#: includes/class-archive.php:247
 msgid "Articles"
 msgstr ""
 
-#: includes/class-archive.php:356
+#: includes/class-settings.php:110
+msgid "Articles page"
+msgstr ""
+
+#: includes/class-archive.php:413
 msgid "Articles pagination"
 msgstr ""
 
@@ -59,8 +71,32 @@ msgstr ""
 msgid "Available languages"
 msgstr ""
 
-#: includes/class-archive.php:316
+#: includes/class-archive.php:373
 msgid "Browse articles by category"
+msgstr ""
+
+#: includes/class-settings.php:325
+msgid "Change image"
+msgstr ""
+
+#: includes/class-settings.php:319 includes/class-settings.php:323
+msgid "Choose the archive hero image"
+msgstr ""
+
+#: templates/parts/share.php:70
+msgid "Copied"
+msgstr ""
+
+#: templates/parts/share.php:70
+msgid "Copy article link"
+msgstr ""
+
+#: templates/parts/share.php:70
+msgid "Copy failed"
+msgstr ""
+
+#: templates/parts/share.php:72
+msgid "Copy link"
 msgstr ""
 
 #: templates/parts/featured-article.php:40
@@ -75,7 +111,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: templates/archive-articles.php:72
+#: templates/archive-articles.php:89
 msgid "Latest stories"
 msgstr ""
 
@@ -83,8 +119,16 @@ msgstr ""
 msgid "Length"
 msgstr ""
 
-#: templates/archive-articles.php:71
+#: templates/parts/share.php:80
+msgid "More options"
+msgstr ""
+
+#: templates/archive-articles.php:88
 msgid "More stories"
+msgstr ""
+
+#: includes/class-settings.php:67 includes/class-settings.php:68 includes/class-settings.php:248
+msgid "NGCV Content Views"
 msgstr ""
 
 #: includes/class-template-router.php:47
@@ -95,12 +139,16 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: includes/class-archive.php:351
+#: includes/class-archive.php:408
 msgid "Next page"
 msgstr ""
 
-#: templates/archive-articles.php:85
+#: templates/archive-articles.php:102
 msgid "No articles yet"
+msgstr ""
+
+#: includes/class-settings.php:330
+msgid "Optional. Overrides the Articles page featured image in the archive hero band. Leave empty to fall back to the page featured image, and to the plain navy background when neither exists. The image applies to all languages."
 msgstr ""
 
 #: templates/single-article.php:80
@@ -115,7 +163,7 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: includes/class-archive.php:350
+#: includes/class-archive.php:407
 msgid "Previous page"
 msgstr ""
 
@@ -127,6 +175,46 @@ msgstr ""
 msgid "Related Articles"
 msgstr ""
 
+#: includes/class-settings.php:326
+msgid "Remove image"
+msgstr ""
+
+#: includes/class-settings.php:321
+msgid "Select image"
+msgstr ""
+
+#: includes/class-settings.php:290
+msgid "Select the NGCV archive page. The official WordPress Posts page (Settings → Reading) always uses the NGCV archive design on its own. Use this setting to choose which page supplies the archive title, introduction and hero when the Posts page is shown — including its Polylang translation in the current language. Static pages should use the \"NGCV — Articles Archive\" page template instead."
+msgstr ""
+
+#: templates/parts/share.php:35
+msgid "Share on Facebook"
+msgstr ""
+
+#: templates/parts/share.php:51
+msgid "Share on LinkedIn"
+msgstr ""
+
+#: templates/parts/share.php:47
+msgid "Share on Telegram"
+msgstr ""
+
+#: templates/parts/share.php:43
+msgid "Share on WhatsApp"
+msgstr ""
+
+#: templates/parts/share.php:39
+msgid "Share on X"
+msgstr ""
+
+#: templates/parts/share.php:57
+msgid "Share this article"
+msgstr ""
+
+#: templates/parts/share.php:78
+msgid "Share via your device"
+msgstr ""
+
 #: templates/parts/language-counterpart.php:21
 msgid "This article in another language"
 msgstr ""
@@ -135,7 +223,7 @@ msgstr ""
 msgid "Toggle table of contents"
 msgstr ""
 
-#: templates/single-article.php:93
+#: templates/single-article.php:98
 msgid "Topics"
 msgstr ""
 
@@ -143,7 +231,15 @@ msgstr ""
 msgid "Updated %s"
 msgstr ""
 
-#: templates/archive-articles.php:31
+#: includes/class-settings.php:320 includes/class-settings.php:324
+msgid "Use this image"
+msgstr ""
+
+#: includes/class-settings.php:283
+msgid "— Select —"
+msgstr ""
+
+#: templates/archive-articles.php:45
 msgctxt "Archive masthead kicker"
 msgid "Archive"
 msgstr ""
